@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]){
 	// arg parsing
 	if (argc != 3){
-		fprintf(stderr, "Usage: %s [src] [dest]\n", argv[0]);
+		fprintf(stderr, "Incorrect # of arguments ... Usage: %s [src] [dest]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
