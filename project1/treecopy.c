@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 int main(int argc, char* argv[]){
 	// arg parsing
@@ -21,7 +22,7 @@ int main(int argc, char* argv[]){
 		fprintf(stderr, "%s: Unable to open dir %s: %s.\n", argv[0], srcDir, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	printf("%d\n",sd);
+	printf("%d\n",sdir);
 	// make dest dir
 	int wfd = mkdir(destDir, 0777);
 	if (wfd < 0){
