@@ -13,6 +13,36 @@ void err(char* message, char* file){
 	fprintf(stderr, "%s: %s: %s.\n", PROGRAM, message, file);
 }
 
+int walk(const char* root){
+	// open root
+	DIR* dir = opendir(root);
+	if (dir == NULL){
+		err("Unable to open dir", srcDir);
+		return EXIT_FAILURE;
+	}
+	// Walking src dir
+	for (struct direct* e = readdir(dir); e; e = readdir(dir)){
+		char path[BUFSIZ];
+
+		snprintf(path, BUFSIZ, "%s/%s", srcDir, e->d_name);
+		puts(path);
+
+		// HERE COPY
+
+		// recurse
+		if (e->d_type == DT_DIR){
+			walk(path);
+		}	
+	}
+	// finish by closing
+	if (closedir(sdir) < 0){
+		err("Couldn't close src dir", srcDir);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+// MAIN
 int main(int argc, char* argv[]){
 	// arg parsing
 	strcpy(PROGRAM, argv[0]);
@@ -24,12 +54,7 @@ int main(int argc, char* argv[]){
 	char* destDir = argv[2];
 
 	/* Setup */
-	// open src dir
-	DIR* sdir = opendir(srcDir);
-	if (sdir == NULL){
-		err("Unable to open dir", srcDir);
-		return EXIT_FAILURE;
-	}
+	
 	// make dest dir
 	int wfd = mkdir(destDir, 0777);
 	if (wfd < 0){
@@ -38,17 +63,16 @@ int main(int argc, char* argv[]){
 	}
 
 
-	/* Walking src dir */
-
-
-
+	// walk and copy src dir
+	if (walk(srcDir) < 0){
+		return EXIT_FAILURE;
+	}
 
 
 	/* Cleanup */
-	if (closedir(sdir) < 0){
-		err("Couldn't close src dir", srcDir);
-		return EXIT_FAILURE;
-	}
 	close(wfd);
 	return EXIT_SUCCESS;
 }
+
+// Author: 	Matthew Phelps
+// Date: 		Jan 22 2019
