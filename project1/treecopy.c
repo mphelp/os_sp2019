@@ -8,14 +8,16 @@
 #include <unistd.h>
 
 /* Error msgs */
-void err(char* message, char* file, char* program){
-	fprintf(stderr, "%s: %s: %s.\n", program, message, file);
+char PROGRAM[] = "";
+void err(char* message, char* file){
+	fprintf(stderr, "%s: %s: %s.\n", PROGRAM, message, file);
 }
 
 int main(int argc, char* argv[]){
 	// arg parsing
+	strcpy(PROGRAM, argv[0]);
 	if (argc != 3){
-		fprintf(stderr, "Incorrect # of arguments ... Usage: %s [src] [dest]\n", argv[0]);
+		fprintf(stderr, "Incorrect # of args ... Usage: %s [src] [dest]\n", PROGRAM);
 		return EXIT_FAILURE;
 	}
 	char* srcDir = argv[1];
@@ -25,20 +27,26 @@ int main(int argc, char* argv[]){
 	// open src dir
 	DIR* sdir = opendir(srcDir);
 	if (sdir == NULL){
-		/* fprintf(stderr, "%s: Unable to open dir %s: %s.\n", argv[0], srcDir, strerror(errno)); */
-		err("Unable to open dir", srcDir, argv[0]);
+		err("Unable to open dir", srcDir);
 		return EXIT_FAILURE;
 	}
 	// make dest dir
 	int wfd = mkdir(destDir, 0777);
 	if (wfd < 0){
-		fprintf(stderr, "%s: Unable to make dest dir %s: %s.\n", argv[0], destDir, strerror(errno));
+		err("Unable to make dest dir", destDir);
 		return EXIT_FAILURE;
 	}
 
+
+	/* Walking src dir */
+
+
+
+
+
 	/* Cleanup */
 	if (closedir(sdir) < 0){
-		fprintf(stderr,"%s: Couldn't close src dir %s: %s.\n", argv[0], destDir, strerror(errno));
+		err("Couldn't close src dir", srcDir);
 		return EXIT_FAILURE;
 	}
 	close(wfd);
