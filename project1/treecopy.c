@@ -14,14 +14,23 @@ int main(int argc, char* argv[]){
 	char* srcDir = argv[1];
 	char* destDir = argv[2];
 
+	/* Setup */
 	// open src dir
-	DIR* sd = opendir(srcDir);
-	if (sd == NULL){
+	DIR* sdir = opendir(srcDir);
+	if (sdir == NULL){
 		fprintf(stderr, "%s: Unable to open dir %s: %s.\n", argv[0], srcDir, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	printf("%d\n",sd);
+	// make dest dir
+	int wfd = mkdir(destDir, 0777);
+	if (wfd < 0){
+		fprintf(stderr, "%s: Unable to make dest dir %s: %s.\n", argv[0], destDir, strerror(errno));
+		return EXIT_FAILURE;
+	}
 
+
+	close(sd);
 	return EXIT_SUCCESS;
 
 }
