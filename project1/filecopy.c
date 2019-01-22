@@ -32,14 +32,14 @@ int main(int argc, char* argv[]){
 
 	// filecopy from src to dest
 	char buf[BUFSIZ];
-	int nread;
+	int nread, nwritten;
 
 	while ((nread = read(rfd, buf, BUFSIZ)) != 0){
 		if (nread < 0){
 			fprintf(stderr, "%s: failed reading %s: %s.\n", argv[0], src, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		int nwritten = write(wfd, buf, nread);
+		nwritten = write(wfd, buf, nread);
 		if (nwritten < 0){
 			fprintf(stderr, "%s: FAILED writing to %s: %s.\n", argv[0], dest, strerror(errno));
 			fprintf(stderr, "Read %d written %d\n",nread,nwritten);
@@ -59,5 +59,6 @@ int main(int argc, char* argv[]){
 	// finish
 	close(wfd);
 	close(rfd);
+	printf("%s: copied %d bytes from %s to %s\n", argv[0], nwritten, src, dest);
 	return EXIT_SUCCESS;
 }
