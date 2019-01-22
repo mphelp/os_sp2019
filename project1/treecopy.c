@@ -9,7 +9,7 @@
 
 /* Error msgs */
 char PROGRAM[] = "";
-void err(char* message, char* file){
+void err(char* message, const char* file){
 	fprintf(stderr, "%s: %s: %s.\n", PROGRAM, message, file);
 }
 
@@ -17,14 +17,14 @@ int walk(const char* root){
 	// open root
 	DIR* dir = opendir(root);
 	if (dir == NULL){
-		err("Unable to open dir", srcDir);
+		err("Unable to open dir", root);
 		return EXIT_FAILURE;
 	}
 	// Walking src dir
-	for (struct direct* e = readdir(dir); e; e = readdir(dir)){
+	for (struct dirent* e = readdir(dir); e; e = readdir(dir)){
 		char path[BUFSIZ];
 
-		snprintf(path, BUFSIZ, "%s/%s", srcDir, e->d_name);
+		snprintf(path, BUFSIZ, "%s/%s", root, e->d_name);
 		puts(path);
 
 		// HERE COPY
@@ -35,8 +35,8 @@ int walk(const char* root){
 		}	
 	}
 	// finish by closing
-	if (closedir(sdir) < 0){
-		err("Couldn't close src dir", srcDir);
+	if (closedir(dir) < 0){
+		err("Couldn't close src dir", root);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
