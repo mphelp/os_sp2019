@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 int main(int argc, char* argv[]){
+	// arg parsing
 	if (argc != 3){
 		fprintf(stderr, "Usage: %s [src] [dest]\n", argv[0]);
 		return EXIT_FAILURE;
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]){
 		return EXIT_FAILURE;
 	}
 	// open dest
-	int wfd = open(dest, O_WRONLY | O_CREAT, 0644);
+	int wfd = open(dest, O_WRONLY | O_CREAT);
 	if (wfd < 0){
 		fprintf(stderr, "%s: couldn't open %s: %s.\n", argv[0], dest, strerror(errno));
 		return EXIT_FAILURE;
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "Read %d written %d\n",nread,nwritten);
 			return EXIT_FAILURE;
 		}
-		// finish writes that take over a chunk
+		// finish writes that take more than a chunk
 		int nextwrites;
 		while (nwritten != nread){
 			if ((nextwrites = write(wfd, buf + nwritten, nread - nwritten)) < 0){
