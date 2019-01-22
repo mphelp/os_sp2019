@@ -7,6 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#define eqstr(s1, s2) (strcmp((s1),(s2)) == 0)
+
 /* Error msgs */
 char PROGRAM[] = "";
 void err(char* message, const char* file){
@@ -22,6 +24,8 @@ int walk(const char* root){
 	}
 	// Walking src dir
 	for (struct dirent* e = readdir(dir); e; e = readdir(dir)){
+		if (eqstr(e->d_name, "..") || eqstr(e->d_name, "."))
+			continue;
 		char path[BUFSIZ];
 
 		snprintf(path, BUFSIZ, "%s/%s", root, e->d_name);
