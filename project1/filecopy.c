@@ -18,4 +18,14 @@ int main(int argc, char* argv[]){
 
 	// open src
 	int rfd = open(src, O_RDONLY);
+	if (rfd < 0){
+		fprintf(stderr, "%s: couldn't open %s: %s.\n", argv[0], src, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	// open dest
+	int wfd = open(dest, O_RDONLY | O_CREAT, 0644);
+	if (wfd < 0){
+		fprintf(stderr, "%s: couldn't open %s: %s.\n", argv[0], dest, strerror(errno));
+		return EXIT_FAILURE;
+	}
 }
