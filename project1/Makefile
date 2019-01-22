@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall
 #########
 
-programs = who tree
+programs = filecopy treecopy
 all: $(programs)
 
 $(objects): %: %.c
