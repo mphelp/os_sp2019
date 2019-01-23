@@ -61,7 +61,7 @@ int fileCopy(char* src, char* dest){
 	printf("copied %d bytes from %s to %s\n", nwritten, src, dest);
 	return EXIT_SUCCESS;
 }
-int walkDir(const char* root){
+int walkDir(const char* root, const char* newRoot){
 	// open root
 	DIR* dir = opendir(root);
 	if (dir == NULL){
@@ -73,15 +73,17 @@ int walkDir(const char* root){
 		if (eqstr(e->d_name, "..") || eqstr(e->d_name, "."))
 			continue;
 		char path[BUFSIZ];
+		char newPath[BUFSIZ];
 
 		snprintf(path, BUFSIZ, "%s/%s", root, e->d_name);
-		puts(path);
+		snprintf(newPath, BUFSIZ, "%s/%s", newRoot, e->d_name);
+		/* puts(path); */
 
 		// HERE COPY
-
+		fileCopy(path, newPath);
 		// recurse
 		if (e->d_type == DT_DIR){
-			walkDir(path);
+			walkDir(path, newPath);
 		}	
 	}
 	// finish by closing
@@ -114,7 +116,7 @@ int main(int argc, char* argv[]){
 
 
 	// walk dir and copy src dir
-	if (walkDir(srcDir) < 0){
+	if (walkDir(srcDir, destDir) < 0){
 		return EXIT_FAILURE;
 	}
 
