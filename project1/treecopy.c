@@ -79,12 +79,17 @@ int walkDir(const char* root, const char* newRoot){
 		snprintf(newPath, BUFSIZ, "%s/%s", newRoot, e->d_name);
 		/* puts(path); */
 
-		// HERE COPY
-		fileCopy(path, newPath);
-		// recurse
+		// recurse on dir
 		if (e->d_type == DT_DIR){
+			int wfd = mkdir(destDir, 0777);
+			if (wfd < 0){
+				err("Unable to make dest dir", destDir);
+				return EXIT_FAILURE;
+			}
 			walkDir(path, newPath);
-		}	
+		}	else { // standard file
+			fileCopy(path, newPath);
+		}
 	}
 	// finish by closing
 	if (closedir(dir) < 0){
