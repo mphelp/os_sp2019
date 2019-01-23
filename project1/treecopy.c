@@ -81,9 +81,9 @@ int walkDir(const char* root, const char* newRoot){
 
 		// recurse on dir
 		if (e->d_type == DT_DIR){
-			int wfd = mkdir(destDir, 0777);
+			int wfd = mkdir(newPath, 0777);
 			if (wfd < 0){
-				err("Unable to make dest dir", destDir);
+				err("Unable to make dest dir", newPath);
 				return EXIT_FAILURE;
 			}
 			walkDir(path, newPath);
