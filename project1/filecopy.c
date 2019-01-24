@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
 	// check if dest exists already
 	struct stat buffer;
 	if (stat(dest, &buffer) == 0){
-		fprintf(stderr, "%s: couldn't create target %s: File exists.\n", argv[0], src);
+		fprintf(stderr, "%s: couldn't create target %s: File exists.\n", argv[0], dest);
 		return EXIT_FAILURE;
 	}
 	// open dest
