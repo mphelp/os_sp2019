@@ -71,7 +71,7 @@ int fileCopy(char* src, char* dest){
 	close(rfd);
 	return EXIT_SUCCESS;
 }
-int walkDir(const char* root, const char* newRoot){
+int dirCopy(const char* root, const char* newRoot){
 	// open root
 	DIR* dir = opendir(root);
 	if (dir == NULL){
@@ -87,23 +87,27 @@ int walkDir(const char* root, const char* newRoot){
 
 		snprintf(path, BUFSIZ, "%s/%s", root, e->d_name);
 		snprintf(newPath, BUFSIZ, "%s/%s", newRoot, e->d_name);
-		/* puts(path); */
 
 		// print copy
 		printf("%s -> %s\n", path, newPath);
 
-		// recurse on dir
-		if (e->d_type == DT_DIR){
+		// recurse on directory
+		if (e->d_type == DT_DIR){ // directory
 			int wfd = mkdir(newPath, 0777);
 			if (wfd < 0){
 				err("Unable to make dest dir", newPath);
 				return EXIT_FAILURE;
 			}
-			walkDir(path, newPath);
-		}	else { // standard file
+			dirCopy(path, newPath);
+		}	else if (e->d_type == DT_REG){ // standard file
 			fileCopy(path, newPath);
+		} else { // anything else
+			err("Unable to process file", newPath);
+			return EXIT_FAILURE;
 		}
 	}
+	// add copy information
+	COPYINFO.directories += 1;
 	
 	// finish by closing
 	if (closedir(dir) < 0){
@@ -118,13 +122,18 @@ int main(int argc, char* argv[]){
 	// arg parsing
 	strcpy(PROGRAM, argv[0]);
 	if (argc != 3){
-		fprintf(stderr, "Incorrect # of args ... Usage: %s [src] [dest]\n", PROGRAM);
+		fprintf(stderr, "usage: %s <sourcefile> <targetfile>\n", PROGRAM);
 		return EXIT_FAILURE;
 	}
 	char* srcDir = argv[1];
 	char* destDir = argv[2];
 
-	// make dest dir
+	// make dest dir (check if already exists)
+	struct stat buffer;
+	if (stat(destDir, &buffer) == 0){
+		err("Destination directory already exists", destDir);
+		return EXIT_FAILURE;
+	}
 	int wfd = mkdir(destDir, 0777);
 	if (wfd < 0){
 		err("Unable to make dest dir", destDir);
@@ -133,11 +142,13 @@ int main(int argc, char* argv[]){
 	// print first copy (src dir to dest dir)
 	printf("%s -> %s\n", srcDir, destDir);
 
-	// walk dir and copy src dir
-	if (walkDir(srcDir, destDir) < 0){
+	// walk and copy src dir
+	if (dirCopy(srcDir, destDir) < 0){
 		return EXIT_FAILURE;
 	}
-
+	// Display copy information
+	printf("%s: copied %d directories, %d files, ", PROGRAM, COPYINFO.directories, COPYINFO.files);
+	printf("and %d bytes from %s to %s\n", COPYINFO.bytes, srcDir, destDir);
 
 	/* Cleanup */
 	close(wfd);
