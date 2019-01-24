@@ -40,7 +40,7 @@ int fileCopy(char* src, char* dest){
 		}
 		nwritten = write(wfd, buf, nread);
 		if (nwritten < 0){
-			err("FAILED writing to dest", dest);
+			err("Failed writing to dest", dest);
 			/* fprintf(stderr, "Read %d written %d\n",nread,nwritten); */
 			return EXIT_FAILURE;
 		}
@@ -58,8 +58,8 @@ int fileCopy(char* src, char* dest){
 	// finish
 	close(wfd);
 	close(rfd);
-	printf("copied %d bytes from %s to %s\n", nwritten, src, dest);
-	return EXIT_SUCCESS;
+	//printf("copied %d bytes from %s to %s\n", nwritten, src, dest);
+	return nwritten;
 }
 int walkDir(const char* root, const char* newRoot){
 	// open root
@@ -79,6 +79,9 @@ int walkDir(const char* root, const char* newRoot){
 		snprintf(newPath, BUFSIZ, "%s/%s", newRoot, e->d_name);
 		/* puts(path); */
 
+		// print copy
+		printf("%s -> %s\n", path, newPath);
+
 		// recurse on dir
 		if (e->d_type == DT_DIR){
 			int wfd = mkdir(newPath, 0777);
@@ -91,6 +94,7 @@ int walkDir(const char* root, const char* newRoot){
 			fileCopy(path, newPath);
 		}
 	}
+	
 	// finish by closing
 	if (closedir(dir) < 0){
 		err("Couldn't close src dir", root);
