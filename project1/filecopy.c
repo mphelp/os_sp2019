@@ -23,6 +23,12 @@ int main(int argc, char* argv[]){
 		fprintf(stderr, "%s: couldn't open %s: %s.\n", argv[0], src, strerror(errno));
 		return EXIT_FAILURE;
 	}
+	// check if dest exists already
+	struct stat buffer;
+	if (stat(dest, &buffer) == 0){
+		fprintf(stderr, "%s: couldn't create target %s: File exists.\n", argv[0], src);
+		return EXIT_FAILURE;
+	}
 	// open dest
 	int wfd = open(dest, O_WRONLY | O_CREAT);
 	if (wfd < 0){

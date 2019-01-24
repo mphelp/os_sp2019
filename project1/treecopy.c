@@ -10,12 +10,19 @@
 
 #define eqstr(s1, s2) (strcmp((s1),(s2)) == 0)
 
+// Global copy information struct
+struct copyInfo {
+	int files, directories, bytes;
+};
+struct copyInfo COPYINFO = { 0,0,0 };
+
 /* Error msgs */
 char PROGRAM[] = "";
 void err(char* message, const char* file){
 	fprintf(stderr, "%s: %s: %s.\n", PROGRAM, message, file);
 }
 
+// Copy functions
 int fileCopy(char* src, char* dest){
 	// open src/dest
 	int rfd = open(src, O_RDONLY);
@@ -23,7 +30,7 @@ int fileCopy(char* src, char* dest){
 		err("Couldn't open src", src);
 		return EXIT_FAILURE;
 	}
-	int wfd = open(dest, O_WRONLY | O_CREAT);
+	int wfd = open(dest, O_WRONLY | O_CREAT, 0666); 
 	if (wfd < 0){
 		err("Couldn't open dest", dest);
 		return EXIT_FAILURE;
@@ -55,11 +62,14 @@ int fileCopy(char* src, char* dest){
 		}
 	}
 
+	// add copy information
+	COPYINFO.bytes += nwritten;
+	COPYINFO.files += 1;
+
 	// finish
 	close(wfd);
 	close(rfd);
-	//printf("copied %d bytes from %s to %s\n", nwritten, src, dest);
-	return nwritten;
+	return EXIT_SUCCESS;
 }
 int walkDir(const char* root, const char* newRoot){
 	// open root
@@ -114,15 +124,14 @@ int main(int argc, char* argv[]){
 	char* srcDir = argv[1];
 	char* destDir = argv[2];
 
-	/* Setup */
-	
 	// make dest dir
 	int wfd = mkdir(destDir, 0777);
 	if (wfd < 0){
 		err("Unable to make dest dir", destDir);
 		return EXIT_FAILURE;
 	}
-
+	// print first copy (src dir to dest dir)
+	printf("%s -> %s\n", srcDir, destDir);
 
 	// walk dir and copy src dir
 	if (walkDir(srcDir, destDir) < 0){
