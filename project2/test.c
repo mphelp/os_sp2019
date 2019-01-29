@@ -11,12 +11,23 @@ int main(int argc, char* argv[]){
 	char* words[MAX_DISTINCT_WORDS];
 
 	printf("Enter message: ");
-	strtok(line," \t\n");
+
 	while (fgets(line, MAX_CHARACTER_INPUT, stdin)){
 		
-		strtok(line," \t\n");
-		printf("%s\n",line);
+		words[0] = strtok(line," \t\n");
+		int nwords = 1;
+		while ((words[nwords] = strtok(0, " \t\n")) != NULL){
+			if (nwords == MAX_DISTINCT_WORDS){
+				break;
+			}
+			nwords++;
+		}
+		words[nwords] = 0; 
 	}
-
+	// Print each word
+	for (int w = 0; words[w] != NULL; w++){
+		printf("%s ",words[w]);
+	}
+	printf("\n");
 	return EXIT_SUCCESS;
 }
