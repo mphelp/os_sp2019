@@ -5,6 +5,14 @@
 #define MAX_CHARACTER_INPUT 1000
 #define MAX_DISTINCT_WORDS 	100
 
+// helper functions
+void printWords(char* words[]){
+	for (int w = 0; words[w] != NULL; w++){
+		printf("%s ",words[w]);
+	}
+	printf("\n");
+}
+
 int main(int argc, char* argv[]){
 	// Read from line
 	char line[MAX_CHARACTER_INPUT];
@@ -25,9 +33,7 @@ int main(int argc, char* argv[]){
 		words[nwords] = 0; 
 	}
 	// Print each word
-	for (int w = 0; words[w] != NULL; w++){
-		printf("%s ",words[w]);
-	}
-	printf("\n");
+	printWords(words);
+
 	return EXIT_SUCCESS;
 }
