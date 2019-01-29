@@ -7,16 +7,15 @@
 
 int main(int argc, char* argv[]){
 	// Read from line
-	char buf[MAX_CHARACTER_INPUT];
+	char line[MAX_CHARACTER_INPUT];
 	char* words[MAX_DISTINCT_WORDS];
 
-	//char* text = calloc(1,1);
 	printf("Enter message: ");
-	while (fgets(buf, MAX_CHARACTER_INPUT, stdin)){
-		//text = realloc(text, strlen(text)+strlen(buf)+1);
+	strtok(line," \t\n");
+	while (fgets(line, MAX_CHARACTER_INPUT, stdin)){
 		
-		//strcat(text, buf);
-		printf("%s\n",buf);
+		strtok(line," \t\n");
+		printf("%s\n",line);
 	}
 
 	return EXIT_SUCCESS;
