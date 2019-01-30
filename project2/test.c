@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <errno.h>
 #define MAX_CHARACTER_INPUT 1000
 #define MAX_DISTINCT_WORDS 	100
 
@@ -18,7 +18,7 @@ void printWords(char* words[]){
 	}
 	printf("\n");
 }
-void parseWordsFromLine(char line[], char* words[]){
+void parseWordsFromLine(char* words[], char line[]){
 	words[0] = strtok(line," \t\n");
 	int nwords = 1;
 	while ((words[nwords] = strtok(0, " \t\n")) != NULL){
@@ -34,15 +34,24 @@ int main(int argc, char* argv[]){
 	char line[MAX_CHARACTER_INPUT];
 	char* words[MAX_DISTINCT_WORDS];
 
-	printf("Enter message: ");
-	char* line = fgets(line, MAX_CHARACTER_INPUT, stdin);
-	if (line == NULL){
-		userError("User input retrieval failed");
+	if (fprintf(stdout, "myshell> ") < 0){
+		debug("failed to print prompt %s", strerror(errno));
 		return EXIT_FAILURE;
 	}
-	while ()
-	
-	
+	if (fflush(stdout) == EOF){
+		debug("failed to flush stdout %s:", strerror(errno));
+		return EXIT_FAILURE;
+	}
+	while (true){
+		char* line = fgets(line, MAX_CHARACTER_INPUT, stdin);
+		if (line == NULL){
+			userError("reached EOF");
+			return EXIT_FAILURE;
+		} else {
+			parseWordsFromLine(words, line);
+		}
+	}
+	printWords(words);	
 
 	return EXIT_SUCCESS;
 }
