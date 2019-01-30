@@ -13,7 +13,26 @@
 #define errInput(M, ...)\
 	fprintf(stderr, "%s: " M "\n", __FILE__, ##__VA_ARGS__)
 
+// possible programs the shell understands
+char* PROGS[] = {
+	"start",
+	"wait",
+	"waitfor",
+	"run",
+	"watchdog"
+}
 // helper functions
+int checkProgram(char* prog){
+	int progCount = sizeof(PROGS)/sizeof(PROGS[0]);
+	bool progValid = false;
+	for (int i = 0; i < progCount; i++){
+		if (strcmp(PROGS[i], prog)){
+			progValid = true;
+			break;
+		}
+	}
+	return progValid;
+}
 void printWords(char* words[]){
 	for (int w = 0; words[w] != NULL; w++){
 		printf("%s ",words[w]);
