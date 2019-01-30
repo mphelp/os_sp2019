@@ -20,14 +20,20 @@ char* PROGS[] = {
 	"waitfor",
 	"run",
 	"watchdog"
-}
+};
+
+// prototypes
+int checkProgram(char* prog);
+void printWords(char* words[]);
+void parseWordsFromLine(char* words[], char line[]);
+
 // helper functions
 int checkProgram(char* prog){
 	int progCount = sizeof(PROGS)/sizeof(PROGS[0]);
-	bool progValid = false;
+	int progValid = -1;
 	for (int i = 0; i < progCount; i++){
 		if (strcmp(PROGS[i], prog)){
-			progValid = true;
+			progValid = 0;
 			break;
 		}
 	}
@@ -63,11 +69,16 @@ int main(int argc, char* argv[]){
 		}	
 		char line[MAX_CHARACTER_INPUT];
 		char* words[MAX_DISTINCT_WORDS];
-		if(fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
+		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
 			parseWordsFromLine(words, line);
+			// words parsed, now do stuff!!
+
+
+			if (checkProgram(words[0]) < 0){
+				debug("program not recognized");
+			} 
+		} else {
+			// we've reached the end!
 		}
-
-		// words parsed, now do stuff!!
-
 	}
 }
