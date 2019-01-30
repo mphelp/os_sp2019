@@ -12,6 +12,7 @@
 	fprintf(stderr, "%s:%d:%s" M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define errInput(M, ...)\
 	fprintf(stderr, "%s: " M "\n", __FILE__, ##__VA_ARGS__)
+#define streq(s0, s1) (strcmp((s0), (s1)) == 0)
 
 // possible programs the shell understands
 char* PROGS[] = {
@@ -32,7 +33,7 @@ int checkProgram(char* prog){
 	int progCount = sizeof(PROGS)/sizeof(PROGS[0]);
 	int progValid = -1;
 	for (int i = 0; i < progCount; i++){
-		if (strcmp(PROGS[i], prog)){
+		if (strcmp(PROGS[i], prog) == 0){
 			progValid = 0;
 			break;
 		}
@@ -76,9 +77,11 @@ int main(int argc, char* argv[]){
 
 			if (checkProgram(words[0]) < 0){
 				debug("program not recognized");
+				return EXIT_FAILURE;
 			} 
 		} else {
 			// we've reached the end!
+			return EXIT_SUCCESS;
 		}
 	}
 }
