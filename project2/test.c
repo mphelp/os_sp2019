@@ -22,7 +22,23 @@ char* PROGS[] = {
 	"run",
 	"watchdog"
 };
-
+// command func pointer
+typedef int (*commandFunc)(char**);
+int startFunc(char* words[]){
+	return EXIT_SUCCESS;
+}
+int waitFunc(char* words[]){
+	return EXIT_SUCCESS;
+}
+int waitforFunc(char* words[]){
+	return EXIT_SUCCESS;
+}
+int runFunc(char* words[]){
+	return EXIT_SUCCESS;
+}
+int watchdogFunc(char* words[]){
+	return EXIT_SUCCESS;
+}
 // prototypes
 int checkProgram(char* prog);
 void printWords(char* words[]);
@@ -74,11 +90,28 @@ int main(int argc, char* argv[]){
 			parseWordsFromLine(words, line);
 			// words parsed, now do stuff!!
 
+			// Retrieve program
+			if (streq(words[0], "start")){
+				commandFunc = startFunc;
+			} else if (streq(words[0], "run")){
+				commandFunc = runFunc;
+			} else if (streq(words[0], "wait")){
+				commandFunc = waitFunc;
+			} else if (streq(words[0], "waitfor")){
+				commandFunc = waitforFunc;
+			} else if (streq(words[0], "watchdog")){
+				commandFunc = watchdogFunc;
+			} else {
+				debug("NO Program exists");
+			}
+			int commandReturn = (*commandFunc(words));
+			printf("Command Return: %d\n",commandReturn);
 
-			if (checkProgram(words[0]) < 0){
-				debug("program not recognized");
-				return EXIT_FAILURE;
-			} 
+
+			/* if (checkProgram(words[0]) < 0){ */
+			/* 	debug("program not recognized"); */
+			/* 	return EXIT_FAILURE; */
+			/* } */ 
 		} else {
 			// we've reached the end!
 			return EXIT_SUCCESS;
