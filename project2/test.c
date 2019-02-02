@@ -38,9 +38,7 @@ int startFunc(char* words[]){
 	}	else if (rc == 0){
 		printf("%s: process %d started\n", SHELL, (int)getpid());
 		execvp(words[1], &words[1]); // run prog
-	} else {
-		/* int rc_wait = wait(NULL); */
-	}
+	} 
 	return EXIT_SUCCESS;
 }
 
@@ -48,10 +46,8 @@ int waitFunc(char* words[]){
 	int rc_wait = wait(NULL);
 	if (rc_wait < 0){
 		printf("%s: No children.\n", SHELL);
-
 	} else {
 		printf("%s: process %d exited .....\n", SHELL, rc_wait);
-
 	}
 	return EXIT_SUCCESS;
 }
@@ -60,7 +56,6 @@ int waitforFunc(char* words[]){
 	return EXIT_SUCCESS;
 }
 int runFunc(char* words[]){
-	printf("Running ...\n");
 	return EXIT_SUCCESS;
 }
 int watchdogFunc(char* words[]){
@@ -132,9 +127,9 @@ int main(int argc, char* argv[]){
 				command = &watchdogFunc;
 			} else {
 				errInput("Command not recognized");
+				continue;
 			}
 			int commandReturn = (*command)(words);
-			/* printf("Command Return: %d\n",commandReturn); */
 
 			// Error check command (exit if failed)
 
