@@ -24,6 +24,7 @@ char* PROGS[] = {
 };
 // command func pointer
 typedef int (*commandFunc)(char**);
+
 int startFunc(char* words[]){
 	printf("Starting...\n");
 	return EXIT_SUCCESS;
@@ -94,22 +95,23 @@ int main(int argc, char* argv[]){
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
 			parseWordsFromLine(words, line);
 			// words parsed, now do stuff!!
+			commandFunc command;
 
 			// Retrieve program
 			if (streq(words[0], "start")){
-				commandFunc = startFunc;
+				command = &startFunc;
 			} else if (streq(words[0], "run")){
-				commandFunc = runFunc;
+				command = &runFunc;
 			} else if (streq(words[0], "wait")){
-				commandFunc = waitFunc;
+				command = &waitFunc;
 			} else if (streq(words[0], "waitfor")){
-				commandFunc = waitforFunc;
+				command = &waitforFunc;
 			} else if (streq(words[0], "watchdog")){
-				commandFunc = watchdogFunc;
+				command = &watchdogFunc;
 			} else {
 				errInput("Command not recognized");
 			}
-			int commandReturn = (*commandFunc(words));
+			int commandReturn = (*command)(words);
 			printf("Command Return: %d\n",commandReturn);
 
 
