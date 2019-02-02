@@ -25,18 +25,23 @@ char* PROGS[] = {
 // command func pointer
 typedef int (*commandFunc)(char**);
 int startFunc(char* words[]){
+	printf("Starting...\n");
 	return EXIT_SUCCESS;
 }
 int waitFunc(char* words[]){
+	printf("Waiting...\n");
 	return EXIT_SUCCESS;
 }
 int waitforFunc(char* words[]){
+	printf("Waiting for ...\n");
 	return EXIT_SUCCESS;
 }
 int runFunc(char* words[]){
+	printf("Running ...\n");
 	return EXIT_SUCCESS;
 }
 int watchdogFunc(char* words[]){
+	printf("Watchdogging ...\n");
 	return EXIT_SUCCESS;
 }
 // prototypes
@@ -102,7 +107,7 @@ int main(int argc, char* argv[]){
 			} else if (streq(words[0], "watchdog")){
 				commandFunc = watchdogFunc;
 			} else {
-				debug("NO Program exists");
+				errInput("Command not recognized");
 			}
 			int commandReturn = (*commandFunc(words));
 			printf("Command Return: %d\n",commandReturn);
