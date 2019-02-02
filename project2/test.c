@@ -134,7 +134,9 @@ int main(int argc, char* argv[]){
 			commandFunc command;
 
 			// Retrieve program
-			if (streq(words[0], "start")){
+			if (words[0] == NULL){ // spaces or enter key
+				continue;
+			} else if (streq(words[0], "start")){
 				command = &startFunc;
 			} else if (streq(words[0], "run")){
 				command = &runFunc;
@@ -145,7 +147,7 @@ int main(int argc, char* argv[]){
 			} else if (streq(words[0], "watchdog")){
 				command = &watchdogFunc;
 			} else {
-				errInput("Command not recognized");
+				fprintf(stderr, "%s: Command \'%s\' not recognized\n", SHELL, words[0]);
 				continue;
 			}
 			int commandReturn = (*command)(words);
@@ -161,6 +163,7 @@ int main(int argc, char* argv[]){
 			/* } */ 
 		} else {
 			// we've reached the end!
+			printf("\n");
 			return EXIT_SUCCESS;
 		}
 	}
