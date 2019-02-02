@@ -59,17 +59,21 @@ int waitFunc(char* words[]){
 	int rc_wait = wait(&status);
 	if (rc_wait < 0){
 		printf("%s: No children.\n", SHELL);
-		exit(1);
+		return EXIT_FAILURE;
 	} 
 	handleProcStatus(rc_wait, status);	
 	return EXIT_SUCCESS;
 }
 int waitforFunc(char* words[]){
 	int status;
-	int rc_waitfor = waitpid(atoi(words[2]), &status, 0);
+	if (words[1] == NULL){
+		fprintf(stderr, "%s: No pid specified\n", SHELL);
+		return EXIT_FAILURE;
+	}
+	int rc_waitfor = waitpid(atoi(words[1]), &status, 0);
 	if (rc_waitfor < 0){
 		printf("%s: No such process.\n", SHELL);
-		exit(1);
+		return EXIT_FAILURE;
 	} 
 	handleProcStatus(rc_waitfor, status);
 	return EXIT_SUCCESS;
