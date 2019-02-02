@@ -3,6 +3,8 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #define MAX_CHARACTER_INPUT 1000
 #define MAX_DISTINCT_WORDS 	100
 
@@ -27,8 +29,24 @@ typedef int (*commandFunc)(char**);
 
 int startFunc(char* words[]){
 	printf("Starting...\n");
+	
+	int rc = fork();
+	if (rc < 0){
+		debug("Fork failed");
+		exit(1);
+	}	else if (rc == 0){
+		printf("hello I am child (pid:%d)\n", (int)getpid());
+		
+		execvp(words[1], &words[1]); // run prog
+		printf("THIS SHOULD NEVER PRINT\n");
+	} else {
+		int rc_wait = wait(NULL);
+		printf("hello I am parent of %d (rc_wait:%d) (pid:%d)\n",
+				rc, rc_wait, (int)getpid());
+	}
 	return EXIT_SUCCESS;
 }
+
 int waitFunc(char* words[]){
 	printf("Waiting...\n");
 	return EXIT_SUCCESS;
