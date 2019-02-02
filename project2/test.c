@@ -39,14 +39,20 @@ int startFunc(char* words[]){
 		printf("%s: process %d started\n", SHELL, (int)getpid());
 		execvp(words[1], &words[1]); // run prog
 	} else {
-		int rc_wait = wait(NULL);
+		/* int rc_wait = wait(NULL); */
 	}
 	return EXIT_SUCCESS;
 }
 
 int waitFunc(char* words[]){
 	int rc_wait = wait(NULL);
-	printf("%s: process %d exited .....\n", SHELL, rc_wait);
+	if (rc_wait < 0){
+		printf("%s: No children.\n", SHELL);
+
+	} else {
+		printf("%s: process %d exited .....\n", SHELL, rc_wait);
+
+	}
 	return EXIT_SUCCESS;
 }
 int waitforFunc(char* words[]){
