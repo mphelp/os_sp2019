@@ -43,19 +43,38 @@ int startFunc(char* words[]){
 }
 
 int waitFunc(char* words[]){
-	int rc_wait = wait(NULL);
+	int status;
+	int rc_wait = wait(NULL, &status);
 	if (rc_wait < 0){
 		printf("%s: No children.\n", SHELL);
+		exit(1);
+	} 
+	if (WIFEXITED(status)){
+		printf("%s: process %d exited normally with status %d\n", SHELL, rc_wait, WEXITSTATUS(status));
+	} else if (WIFSIGNALED(status)){
+		printf("%s: process %d killed by signal %d\n", SHELL, rc_wait, WTERMSIG(status));
+	} else if (WIFSTOPPED(status)){
+		printf("%s: process %d stopped by signal %d\n", SHELL, rc_wait, WSTOPSIG(status));
 	} else {
-		printf("%s: process %d exited .....\n", SHELL, rc_wait);
+		printf("%s: process %d exited in another way\n", SHELL, rc_wait);
 	}
 	return EXIT_SUCCESS;
 }
 int waitforFunc(char* words[]){
-	printf("Waiting for ...\n");
+	/* int rc_waitfor = waitpid(atoi(words[2])); */
+	/* if (rc_waitfor < 0){ */
+	/* 	printf("%s: No such process.\n", SHELL); */
+	/* 	exit(1); */
+	/* } */ 
+	/* printf("%s: process %d exited .....\n", SHELL, rc_waitfor); */
 	return EXIT_SUCCESS;
 }
 int runFunc(char* words[]){
+	/* int rc = fork(); */
+	/* if (rc < 0){ */
+	/* 	debug("Fork failed"); */
+	/* 	exit(1); */
+	/* } */
 	return EXIT_SUCCESS;
 }
 int watchdogFunc(char* words[]){
