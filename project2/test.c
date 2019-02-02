@@ -30,13 +30,13 @@ char* PROGS[] = {
 // process status handler
 void handleProcStatus(int pid, int status){
 	if (WIFEXITED(status)){
-		printf("%s: process %d exited normally with status %d\n", SHELL, rc_wait, WEXITSTATUS(status));
+		printf("%s: process %d exited normally with status %d\n", SHELL, pid, WEXITSTATUS(status));
 	} else if (WIFSIGNALED(status)){
-		printf("%s: process %d killed by signal %d\n", SHELL, rc_wait, WTERMSIG(status));
+		printf("%s: process %d killed by signal %d\n", SHELL, pid, WTERMSIG(status));
 	} else if (WIFSTOPPED(status)){
-		printf("%s: process %d stopped by signal %d\n", SHELL, rc_wait, WSTOPSIG(status));
+		printf("%s: process %d stopped by signal %d\n", SHELL, pid, WSTOPSIG(status));
 	} else {
-		printf("%s: process %d exited in another way\n", SHELL, rc_wait);
+		printf("%s: process %d exited in another way\n", SHELL, pid);
 	}
 }
 // command func pointer
@@ -66,7 +66,7 @@ int waitFunc(char* words[]){
 }
 int waitforFunc(char* words[]){
 	int status;
-	int rc_waitfor = waitpid(atoi(words[2]), &status);
+	int rc_waitfor = waitpid(atoi(words[2]), &status, 0);
 	if (rc_waitfor < 0){
 		printf("%s: No such process.\n", SHELL);
 		exit(1);
