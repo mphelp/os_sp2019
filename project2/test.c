@@ -27,6 +27,18 @@ char* PROGS[] = {
 	"run",
 	"watchdog"
 };
+// process status handler
+void handleProcStatus(int pid, int status){
+	if (WIFEXITED(status)){
+		printf("%s: process %d exited normally with status %d\n", SHELL, rc_wait, WEXITSTATUS(status));
+	} else if (WIFSIGNALED(status)){
+		printf("%s: process %d killed by signal %d\n", SHELL, rc_wait, WTERMSIG(status));
+	} else if (WIFSTOPPED(status)){
+		printf("%s: process %d stopped by signal %d\n", SHELL, rc_wait, WSTOPSIG(status));
+	} else {
+		printf("%s: process %d exited in another way\n", SHELL, rc_wait);
+	}
+}
 // command func pointer
 typedef int (*commandFunc)(char**);
 
@@ -49,24 +61,17 @@ int waitFunc(char* words[]){
 		printf("%s: No children.\n", SHELL);
 		exit(1);
 	} 
-	if (WIFEXITED(status)){
-		printf("%s: process %d exited normally with status %d\n", SHELL, rc_wait, WEXITSTATUS(status));
-	} else if (WIFSIGNALED(status)){
-		printf("%s: process %d killed by signal %d\n", SHELL, rc_wait, WTERMSIG(status));
-	} else if (WIFSTOPPED(status)){
-		printf("%s: process %d stopped by signal %d\n", SHELL, rc_wait, WSTOPSIG(status));
-	} else {
-		printf("%s: process %d exited in another way\n", SHELL, rc_wait);
-	}
+	handleProcStatus(rc_wait, status);	
 	return EXIT_SUCCESS;
 }
 int waitforFunc(char* words[]){
-	/* int rc_waitfor = waitpid(atoi(words[2])); */
-	/* if (rc_waitfor < 0){ */
-	/* 	printf("%s: No such process.\n", SHELL); */
-	/* 	exit(1); */
-	/* } */ 
-	/* printf("%s: process %d exited .....\n", SHELL, rc_waitfor); */
+	int status;
+	int rc_waitfor = waitpid(atoi(words[2]), &status);
+	if (rc_waitfor < 0){
+		printf("%s: No such process.\n", SHELL);
+		exit(1);
+	} 
+	handleProcStatus(rc_waitfor, status);
 	return EXIT_SUCCESS;
 }
 int runFunc(char* words[]){
@@ -81,23 +86,8 @@ int watchdogFunc(char* words[]){
 	printf("Watchdogging ...\n");
 	return EXIT_SUCCESS;
 }
-// prototypes
-int checkProgram(char* prog);
-void printWords(char* words[]);
-void parseWordsFromLine(char* words[], char line[]);
 
 // helper functions
-int checkProgram(char* prog){
-	int progCount = sizeof(PROGS)/sizeof(PROGS[0]);
-	int progValid = -1;
-	for (int i = 0; i < progCount; i++){
-		if (strcmp(PROGS[i], prog) == 0){
-			progValid = 0;
-			break;
-		}
-	}
-	return progValid;
-}
 void printWords(char* words[]){
 	for (int w = 0; words[w] != NULL; w++){
 		printf("%s ",words[w]);
@@ -112,7 +102,7 @@ void parseWordsFromLine(char* words[], char line[]){
 			break;
 		nwords++;
 	}
-	words[nwords] = 0; // null terminated
+	words[nwords] = NULL;
 }
 
 int main(int argc, char* argv[]){
@@ -129,8 +119,8 @@ int main(int argc, char* argv[]){
 		char line[MAX_CHARACTER_INPUT];
 		char* words[MAX_DISTINCT_WORDS];
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
+
 			parseWordsFromLine(words, line);
-			// words parsed, now do stuff!!
 			commandFunc command;
 
 			// Retrieve program
@@ -155,14 +145,7 @@ int main(int argc, char* argv[]){
 			// Error check command (exit if failed)
 
 
-
-
-			/* if (checkProgram(words[0]) < 0){ */
-			/* 	debug("program not recognized"); */
-			/* 	return EXIT_FAILURE; */
-			/* } */ 
 		} else {
-			// we've reached the end!
 			printf("\n");
 			return EXIT_SUCCESS;
 		}
