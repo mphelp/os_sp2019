@@ -129,7 +129,11 @@ int main(int argc, char* argv[]){
 				errInput("Command not recognized");
 			}
 			int commandReturn = (*command)(words);
-			printf("Command Return: %d\n",commandReturn);
+			/* printf("Command Return: %d\n",commandReturn); */
+
+			// Error check command (exit if failed)
+
+
 
 
 			/* if (checkProgram(words[0]) < 0){ */
