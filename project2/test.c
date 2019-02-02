@@ -16,6 +16,9 @@
 	fprintf(stderr, "%s: " M "\n", __FILE__, ##__VA_ARGS__)
 #define streq(s0, s1) (strcmp((s0), (s1)) == 0)
 
+// name of shell
+char SHELL[] = "myshell";
+
 // possible programs the shell understands
 char* PROGS[] = {
 	"start",
@@ -28,21 +31,17 @@ char* PROGS[] = {
 typedef int (*commandFunc)(char**);
 
 int startFunc(char* words[]){
-	printf("Starting...\n");
-	
 	int rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
 		exit(1);
 	}	else if (rc == 0){
-		printf("hello I am child (pid:%d)\n", (int)getpid());
-		
+		printf("%s: process %d started\n", SHELL, (int)getpid());
 		execvp(words[1], &words[1]); // run prog
-		printf("THIS SHOULD NEVER PRINT\n");
 	} else {
 		int rc_wait = wait(NULL);
-		printf("hello I am parent of %d (rc_wait:%d) (pid:%d)\n",
-				rc, rc_wait, (int)getpid());
+		/* printf("hello I am parent of %d (rc_wait:%d) (pid:%d)\n", */
+		/* 		rc, rc_wait, (int)getpid()); */
 	}
 	return EXIT_SUCCESS;
 }
@@ -100,7 +99,7 @@ void parseWordsFromLine(char* words[], char line[]){
 int main(int argc, char* argv[]){
 	// Read from line
 	while (true){
-		if (fprintf(stdout, "myshell> ") < 0){
+		if (fprintf(stdout, "%s> ", SHELL) < 0){
 			debug("failed to print prompt %s", strerror(errno));
 			return EXIT_FAILURE;
 		}
