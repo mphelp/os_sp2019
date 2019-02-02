@@ -44,7 +44,7 @@ int startFunc(char* words[]){
 
 int waitFunc(char* words[]){
 	int status;
-	int rc_wait = wait(NULL, &status);
+	int rc_wait = wait(&status);
 	if (rc_wait < 0){
 		printf("%s: No children.\n", SHELL);
 		exit(1);
