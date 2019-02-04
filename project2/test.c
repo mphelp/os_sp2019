@@ -99,7 +99,7 @@ int runFunc(char* words[]){
 	return EXIT_SUCCESS;
 }
 void sighandler(int signum){
-
+	/* printf("Child interrupted\n"); */
 }
 // usage: watchdog numSeconds prog ...
 int watchdogFunc(char* words[]){
@@ -125,9 +125,13 @@ int watchdogFunc(char* words[]){
 				debug("Wait failed");
 				return EXIT_FAILURE;
 			}	
-		} else if (kill(rc_watch, SIGKILL) < 0){
-			debug("Kill failed");
-			return EXIT_FAILURE;
+			printf("Child completed\n");
+		} else {
+			if (kill(rc_watch, SIGKILL) < 0){
+				debug("Kill failed");
+				return EXIT_FAILURE;
+			} 
+			printf("Child interrupted\n");
 		}
 	}
 	return EXIT_SUCCESS;
