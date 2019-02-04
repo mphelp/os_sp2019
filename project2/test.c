@@ -42,6 +42,7 @@ void handleProcStatus(int pid, int status){
 // command func pointer
 typedef int (*commandFunc)(char**);
 
+// usage: start prog ...
 int startFunc(char* words[]){
 	int status;
 	int rc = fork();
@@ -56,6 +57,7 @@ int startFunc(char* words[]){
 	} 
 	return EXIT_SUCCESS;
 }
+// usage: wait
 int waitFunc(char* words[]){
 	int status;
 	int rc_wait = wait(&status);
@@ -66,6 +68,7 @@ int waitFunc(char* words[]){
 	handleProcStatus(rc_wait, status);	
 	return EXIT_SUCCESS;
 }
+// usage: waitfor pid
 int waitforFunc(char* words[]){
 	int status;
 	if (words[1] == NULL){
@@ -80,6 +83,7 @@ int waitforFunc(char* words[]){
 	handleProcStatus(rc_waitfor, status);
 	return EXIT_SUCCESS;
 }
+// usage: run prog ...
 int runFunc(char* words[]){
 	int status;
 	int rc_run = fork();
@@ -94,10 +98,22 @@ int runFunc(char* words[]){
 	handleProcStatus(rc_run, status);
 	return EXIT_SUCCESS;
 }
+void sighandler(int signum){
+
+}
+// usage: watchdog numSeconds prog ...
 int watchdogFunc(char* words[]){
 	int status;
-	/* int rc_watch = fork(); */
-	
+	int rc_watch = fork();
+	if (rc_watch < 0){
+		debug("Fork failed");
+		exit(1);
+	} else if (rc_watch == 0){
+		execvp(words[2], &words[2]);
+	} else {
+
+	}
+	signal(SIGCHLD, sighandler);
 	return EXIT_SUCCESS;
 }
 
