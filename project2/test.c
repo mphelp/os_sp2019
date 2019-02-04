@@ -95,7 +95,9 @@ int runFunc(char* words[]){
 	return EXIT_SUCCESS;
 }
 int watchdogFunc(char* words[]){
-	printf("Watchdogging ...\n");
+	int status;
+	/* int rc_watch = fork(); */
+	
 	return EXIT_SUCCESS;
 }
 
@@ -148,6 +150,8 @@ int main(int argc, char* argv[]){
 				command = &waitforFunc;
 			} else if (streq(words[0], "watchdog")){
 				command = &watchdogFunc;
+			} else if (streq(words[0], "quit") || streq(words[0], "exit")){
+				return EXIT_SUCCESS;
 			} else {
 				fprintf(stderr, "%s: Command \'%s\' not recognized\n", SHELL, words[0]);
 				continue;
