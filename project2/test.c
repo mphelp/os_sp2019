@@ -107,13 +107,29 @@ int watchdogFunc(char* words[]){
 	int rc_watch = fork();
 	if (rc_watch < 0){
 		debug("Fork failed");
-		exit(1);
+		return EXIT_FAILURE;
 	} else if (rc_watch == 0){
 		execvp(words[2], &words[2]);
+		debug("Execvp failed");
+		exit(1);
 	} else {
-
+		signal(SIGCHLD, sighandler);
+		int numSeconds = atoi(words[1]);
+		if (numSeconds < 0){
+			errInput("Watchdog period must be positive # seconds");
+			return EXIT_FAILURE;
+		}
+		if (sleep(numSeconds) > 0){
+			int rc_watch_wait = wait(&status);
+			if (rc_watch_wait < 0){
+				debug("Wait failed");
+				return EXIT_FAILURE;
+			}	
+		} else if (kill(rc_watch, SIGKILL) < 0){
+			debug("Kill failed");
+			return EXIT_FAILURE;
+		}
 	}
-	signal(SIGCHLD, sighandler);
 	return EXIT_SUCCESS;
 }
 
