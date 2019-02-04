@@ -36,13 +36,14 @@ void handleProcStatus(int pid, int status){
 	} else if (WIFSTOPPED(status)){
 		printf("%s: process %d stopped by signal %d\n", SHELL, pid, WSTOPSIG(status));
 	} else {
-		printf("%s: process %d exited in another way\n", SHELL, pid);
+		printf("%s: process %d exited in an obscure way\n", SHELL, pid);
 	}
 }
 // command func pointer
 typedef int (*commandFunc)(char**);
 
 int startFunc(char* words[]){
+	int status;
 	int rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
@@ -50,10 +51,11 @@ int startFunc(char* words[]){
 	}	else if (rc == 0){
 		printf("%s: process %d started\n", SHELL, (int)getpid());
 		execvp(words[1], &words[1]); // run prog
+	} else {
+		int rc_wait = wait(&status);
 	} 
 	return EXIT_SUCCESS;
 }
-
 int waitFunc(char* words[]){
 	int status;
 	int rc_wait = wait(&status);
