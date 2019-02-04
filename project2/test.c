@@ -79,11 +79,17 @@ int waitforFunc(char* words[]){
 	return EXIT_SUCCESS;
 }
 int runFunc(char* words[]){
-	/* int rc = fork(); */
-	/* if (rc < 0){ */
-	/* 	debug("Fork failed"); */
-	/* 	exit(1); */
-	/* } */
+	int status;
+	int rc_run = fork();
+	if (rc_run < 0){
+		debug("Fork failed");
+		exit(1);
+	}	else if (rc_run == 0){
+		execvp(words[1], &words[1]); // run prog
+	} else {
+		int rc_waitfor = waitpid(rc_run, &status, 0);
+	}
+	handleProcStatus(rc_run, status);
 	return EXIT_SUCCESS;
 }
 int watchdogFunc(char* words[]){
