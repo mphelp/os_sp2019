@@ -37,7 +37,6 @@ typedef int (*commandFunc)(char**);
 
 // usage: start prog ...
 int startFunc(char* words[]){
-	int status;
 	int rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
@@ -46,9 +45,8 @@ int startFunc(char* words[]){
 		printf("%s: process %d started\n", SHELL, (int)getpid());
 		execvp(words[1], &words[1]);
 		exit(1);
-	} else if (wait(&status) < 0){
-		debug("Wait failed");
-		return EXIT_FAILURE;
+	} else {
+		// assumption: parent does not wait explicitly
 	}
 	return EXIT_SUCCESS;
 }
@@ -119,19 +117,18 @@ int watchdogFunc(char* words[]){
 			if (wait(&status) < 0){
 				debug("Wait failed");
 				return EXIT_FAILURE;
-			}	
-			// print nothing when time limit not met
+			}
 		} else { // child took too long
-			if (kill(rc_watch, SIGKILL) < 0){
-				debug("Kill failed");
-				return EXIT_FAILURE;
-			} 
-			int rc_watch_wait = wait(&status);
-			if (rc_watch_wait < 0){
+			kill(rc_watch, SIGKILL);
+				/* debug("Kill failed"); */
+				/* return EXIT_FAILURE; */
+			rc_watch = waitpid(rc_watch, &status, 0);
+			if (rc_watch < 0){
 				debug("Wait failed");
 				return EXIT_FAILURE;
 			}
-			printf("%s: process %d exceeded the time limit, killing it...\n", SHELL, rc_watch);
+			printf("%s: process %d exceeded the time limit, killing it...\n", 
+					SHELL, rc_watch);
 			handleProcStatus(rc_watch, status);
 		}
 	}
@@ -162,6 +159,7 @@ int main(int argc, char* argv[]){
 		}	
 		char line[MAX_CHARACTER_INPUT];
 		char* words[MAX_DISTINCT_WORDS];
+		// Parsing
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
 
 			parseWordsFromLine(words, line);
