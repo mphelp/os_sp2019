@@ -19,14 +19,6 @@
 // name of shell
 char SHELL[] = "myshell";
 
-// possible programs the shell understands
-char* PROGS[] = {
-	"start",
-	"wait",
-	"waitfor",
-	"run",
-	"watchdog"
-};
 // process status handler
 void handleProcStatus(int pid, int status){
 	if (WIFEXITED(status)){
