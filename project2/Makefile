@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall
 #########
 
-programs = test
+programs = myshell
 all: $(programs)
 
 $(objects): %: %.c
