@@ -8,7 +8,7 @@
 #define MAX_CHARACTER_INPUT 1000
 #define MAX_DISTINCT_WORDS 	100
 
-// errors
+/* Useful Macros */
 // Courtesy of Prof. Bui's Systems Programming course
 #define debug(M, ...)\
 	fprintf(stderr, "%s:%d:%s" M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
@@ -31,7 +31,8 @@ void handleProcStatus(int pid, int status){
 		printf("%s: process %d exited in an obscure way\n", SHELL, pid);
 	}
 }
-// command func pointer
+
+/* Command Functions */
 typedef int (*commandFunc)(char**);
 
 // usage: start prog ...
