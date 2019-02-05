@@ -41,13 +41,15 @@ int startFunc(char* words[]){
 	int rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
-		exit(1);
+		return EXIT_FAILURE;
 	}	else if (rc == 0){
 		printf("%s: process %d started\n", SHELL, (int)getpid());
-		execvp(words[1], &words[1]); // run prog
-	} else {
-		int rc_wait = wait(&status);
-	} 
+		execvp(words[1], &words[1]);
+		exit(1);
+	} else if (wait(&status) < 0){
+		debug("Wait failed");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 // usage: wait
@@ -82,61 +84,61 @@ int runFunc(char* words[]){
 	int rc_run = fork();
 	if (rc_run < 0){
 		debug("Fork failed");
-		exit(1);
+		return EXIT_FAILURE;
 	}	else if (rc_run == 0){
-		execvp(words[1], &words[1]); // run prog
-	} else {
-		int rc_waitfor = waitpid(rc_run, &status, 0);
+		execvp(words[1], &words[1]);
+		exit(1);
+	} else if (waitpid(rc_run, &status, 0) < 0){
+		debug("Wait failed");
+		return EXIT_FAILURE;
 	}
 	handleProcStatus(rc_run, status);
 	return EXIT_SUCCESS;
 }
-void sighandler(int signum){
-	/* printf("Child interrupted\n"); */
-}
+
 // usage: watchdog numSeconds prog ...
+void sighandler(int signum){}
 int watchdogFunc(char* words[]){
 	int status;
 	int rc_watch = fork();
 	if (rc_watch < 0){
 		debug("Fork failed");
 		return EXIT_FAILURE;
-	} else if (rc_watch == 0){
+	} else if (rc_watch == 0){ // child
 		execvp(words[2], &words[2]);
 		debug("Execvp failed");
 		exit(1);
-	} else {
+	} else { // parent
 		signal(SIGCHLD, sighandler);
 		int numSeconds = atoi(words[1]);
 		if (numSeconds < 0){
 			errInput("Watchdog period must be positive # seconds");
 			return EXIT_FAILURE;
 		}
-		if (sleep(numSeconds) > 0){
-			int rc_watch_wait = wait(&status);
-			if (rc_watch_wait < 0){
+		if (sleep(numSeconds) > 0){ // child completed
+			if (wait(&status) < 0){
 				debug("Wait failed");
 				return EXIT_FAILURE;
 			}	
-			printf("Child completed\n");
-		} else {
+			// print nothing when time limit not met
+		} else { // child took too long
 			if (kill(rc_watch, SIGKILL) < 0){
 				debug("Kill failed");
 				return EXIT_FAILURE;
 			} 
-			printf("Child interrupted\n");
+			int rc_watch_wait = wait(&status);
+			if (rc_watch_wait < 0){
+				debug("Wait failed");
+				return EXIT_FAILURE;
+			}
+			printf("%s: process %d exceeded the time limit, killing it...\n", SHELL, rc_watch);
+			handleProcStatus(rc_watch, status);
 		}
 	}
 	return EXIT_SUCCESS;
 }
 
-// helper functions
-void printWords(char* words[]){
-	for (int w = 0; words[w] != NULL; w++){
-		printf("%s ",words[w]);
-	}
-	printf("\n");
-}
+/* Command Line Parsing */
 void parseWordsFromLine(char* words[], char line[]){
 	words[0] = strtok(line," \t\n");
 	int nwords = 1;
@@ -149,7 +151,6 @@ void parseWordsFromLine(char* words[], char line[]){
 }
 
 int main(int argc, char* argv[]){
-	// Read from line
 	while (true){
 		if (fprintf(stdout, "%s> ", SHELL) < 0){
 			debug("failed to print prompt %s", strerror(errno));
@@ -185,12 +186,13 @@ int main(int argc, char* argv[]){
 				fprintf(stderr, "%s: Command \'%s\' not recognized\n", SHELL, words[0]);
 				continue;
 			}
+			// Call command:
 			int commandReturn = (*command)(words);
-
-			// Error check command (exit if failed)
-
-
+			if (commandReturn == EXIT_FAILURE){
+				// Optional space for general command failure error checking
+			}
 		} else {
+			// Exit prompt
 			printf("\n");
 			return EXIT_SUCCESS;
 		}
