@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <complex.h>
+#include <pthread.h>
 
 /*
 Convert a iteration number to an RGBA color.
@@ -99,6 +100,38 @@ void show_help()
 	printf("-h           Show this help text.\n");
 }
 
+// First additions... modify compute_image + its args to be passable to threads
+struct task {
+	struct bitmap* bm;
+	double 	xmin,
+	double 	xmax,
+	double 	ymin,
+	double 	ymax,
+	int 		max
+};
+void p_compute_image( struct task* t ){
+	int i,j;
+
+	int width = bitmap_width(t.bm);
+	int height = bitmap_height(t.bm);
+
+	// For every pixel in the image...
+
+	for(j=t.ymin;j<t.ymax;j++) {
+		for(i=t.xmin;i<t.xmax;i++) {
+
+			// Determine the point in x,y space for that pixel.
+			double x = t.xmin + i*(t.xmax-t.xmin)/width;
+			double y = t.ymin + j*(t.ymax-t.ymin)/height;
+
+			// Compute the color at that point.
+			int color = compute_point(x,y,t.max);
+
+			// Set the pixel in the bitmap.
+			bitmap_set(t.bm,i,j,color);
+		}
+	}
+}
 int main( int argc, char *argv[] )
 {
 	char c;
@@ -153,7 +186,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: x=%lf y=%lf scale=%lf max=%d outfile=%s\n",xcenter,ycenter,scale,max,outfile);
+	printf("fractal: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadNum,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
