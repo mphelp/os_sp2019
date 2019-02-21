@@ -87,7 +87,7 @@ void compute_image( struct bitmap *bm, double xmin, double xmax, double ymin, do
 
 void show_help()
 {
-	printf("Use: fractal [options]\n");
+	printf("Use: fractalthread [options]\n");
 	printf("Where options are:\n");
 	printf("-n <threads> Number of threads utilized. (default=1)\n");
 	printf("-m <max>     The maximum number of iterations per point. (default=100)\n");
@@ -140,7 +140,8 @@ int main( int argc, char *argv[] )
 	// if no command line arguments are given.
 
 	int 	 threadNum = 1;
-	const char *outfile = "fractal.bmp";
+	const char *outfile = "fractalthread.bmp";
+
 	double xcenter = 0;
 	double ycenter = 0;
 	double scale = 4;
@@ -155,7 +156,6 @@ int main( int argc, char *argv[] )
 		switch(c) {
 			case 'n':
 				threadNum = atoi(optarg);
-				printf("threadNum:%d\n");
 				break;
 			case 'x':
 				xcenter = atof(optarg);
@@ -194,14 +194,26 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	// Compute the fractal image
-	compute_image(bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max);
+	// ADD TO STRUCT
+	struct task* t = malloc(sizeof(struct task));
+	t->bm 	= bm;
+	t->xmin = xcenter - scale;
+	t->xmax = xcenter + scale;
+	t->ymin = ycenter - scale;
+	t->ymax = ycenter + scale;
+	t->max 	= max;
+
+	// Compute image with struct
+	p_compute_image(t);
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {
 		fprintf(stderr,"fractal: couldn't write to %s: %s\n",outfile,strerror(errno));
 		return 1;
 	}
+
+	// Free
+	free(t);
 
 	return 0;
 }
