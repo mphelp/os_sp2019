@@ -205,10 +205,10 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	// Setup split work
+	// Setup tasks and threads
 	pthread_t mythreads[threadTotal];
-
 	struct task* mytasks[threadTotal];
+
 	for (int i = 0; i < threadTotal; i++){
 		mytasks[i] = malloc(sizeof(struct task));
 		mytasks[i]->bm = bm;
@@ -232,8 +232,7 @@ int main( int argc, char *argv[] )
 	for (int i = 0; i < threadTotal; i++){
 		pthread_join(mythreads[i], NULL);
 	}
-
-	// free up tasks
+	// Free up tasks
 	for (int i = 0; i < threadTotal; i++){
 		free(mytasks[i]);
 	}
