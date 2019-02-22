@@ -205,26 +205,36 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	// ADD TO STRUCT
+	// Setup split work
+	pthread_t mythreads[threadTotal];
+
 	struct task* mytasks[threadTotal];
 	for (int i = 0; i < threadTotal; i++){
-		/* struct task* t = malloc(sizeof(struct task)); */
 		mytasks[i] = malloc(sizeof(struct task));
 		mytasks[i]->bm = bm;
 		mytasks[i]->threadTotal = threadTotal;
 		mytasks[i]->threadNum = i;
-		/* mytasks[i]->xmin = xcenter - scale + (2*i)/threadTotal; */
-		/* mytasks[i]->xmax = xcenter - scale + (2*(i+1))/threadTotal; */
-		/* mytasks[i]->ymin = ycenter - scale + (2*i)/threadTotal; */ 
-		/* mytasks[i]->ymax = ycenter - scale + (2*(i+1))/threadTotal; */
 		mytasks[i]->xmin = xcenter - scale;
 		mytasks[i]->xmax = xcenter + scale;
 		mytasks[i]->ymin = ycenter - scale;
 		mytasks[i]->ymax = ycenter + scale;
 		mytasks[i]->max  = max;
+	}
+	// Create threads
+	for (int i = 0; i < threadTotal; i++){
+		if ((pthread_create(&mythreads[i], NULL, 
+						p_compute_image, (void*) mytasks[i])) != 0){
+			fprintf(stderr, "Thread couldn't be created: %s\n",strerror(errno));
+			return 1;
+		}
+	}
+	// Join threads
+	for (int i = 0; i < threadTotal; i++){
+		pthread_join(mythreads[i], NULL);
+	}
 
-		// Compute image with struct
-		p_compute_image(mytasks[i]);
+	// free up tasks
+	for (int i = 0; i < threadTotal; i++){
 		free(mytasks[i]);
 	}
 
