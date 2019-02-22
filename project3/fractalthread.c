@@ -115,8 +115,6 @@ void printContents(struct task* t){
 }
 void* p_compute_image(void* arg){
 	struct task* t = (struct task*) arg;
-	printf("in compute image\n");
-	printContents(t);
 	int i,j;
 
 	int width = bitmap_width(t->bm);
@@ -124,13 +122,13 @@ void* p_compute_image(void* arg){
 
 	// For every pixel in the image...
 
-	for(j=t->ymin;j<t->ymax;j++) {
-		for(i=t->xmin;i<t->xmax;i++) {
+	for(j=0;j<height;j++) {
+		for(i=0;i<width;i++) {
 
 			// Determine the point in x,y space for that pixel.
 			double x = t->xmin + i*(t->xmax-t->xmin)/width;
 			double y = t->ymin + j*(t->ymax-t->ymin)/height;
-
+			
 			// Compute the color at that point.
 			int color = compute_point(x,y,t->max);
 
@@ -213,10 +211,7 @@ int main( int argc, char *argv[] )
 	printf("max:%d\n",t->max);
 
 	// Compute image with struct
-	printf("before compute image\n");
-	printContents(t);
 	p_compute_image(t);
-	printContents(t);
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {

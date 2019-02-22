@@ -2,9 +2,9 @@
 all: fractal fractalthread
 
 fractal: fractal.o bitmap.o
-	gcc fractal.o bitmap.o -o fractal -lpthread -lm
+	gcc -Wall fractal.o bitmap.o -o fractal -lpthread -lm
 fractalthread: fractalthread.o bitmap.o
-	gcc fractalthread.o bitmap.o -o fractalthread -lpthread -lm
+	gcc -Wall fractalthread.o bitmap.o -o fractalthread -lpthread -lm
 
 fractal.o: fractal.c
 	gcc --std=c99 -Wall -g -c fractal.c -o fractal.o
