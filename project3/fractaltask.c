@@ -78,29 +78,30 @@ typedef struct Task {
 	double 	ymin;
 	double 	ymax;
 	int 		max;
-	int 		threadTotal;
-	int   	threadNum;
+	//int 		threadTotal;
+	//int   	threadNum;
+	int 	 	taskNum;
+	int 		taskTotal;
+
+	struct Task* next;
 } Task;
-typedef struct TaskNode {
-	Task* val;
-	struct TaskNode* next;
-} TaskNode;
-TaskNode* TaskNode_new(Task* t){
-	TaskNode* node = malloc(sizeof(TaskNode));
-	node->val = t;
-	node->next = NULL;
-	return node;
-}
+/* TaskNode* TaskNode_new(Task* t){ */
+/* 	TaskNode* node = malloc(sizeof(TaskNode)); */
+/* 	node->val = t; */
+/* 	node->next = NULL; */
+/* 	return node; */
+/* } */
 typedef struct TaskQueue {
-	TaskNode* head = TaskNode_new(NULL);
-	TaskNode* tail = TaskNode_new(NULL);
+	/* TaskNode* head = TaskNode_new(NULL); */
+	/* TaskNode* tail = TaskNode_new(NULL); */
+	Task* head;
 	void push(TaskNode* node){
 		if (head == NULL){
 			head = node;
 			return;
 		}
-		TaskNode* prev = head;
-		TaskNode* curr = head->next;
+		Task* prev = head;
+		Task* curr = head->next;
 		while (curr != NULL){
 			prev = prev->next;
 			curr = curr->next;
@@ -110,12 +111,11 @@ typedef struct TaskQueue {
 	bool isEmpty(){
 		return (head == NULL);
 	}
-	TaskNode* pop(){
+	Task* pop(){
 		if (head == NULL){
-			fprintf(stderr, "Cannot pop from empty queue, check isEmpty\n");
-			exit(1);
+			return head;
 		}
-		TaskNode* oldHead = head;
+		Task* oldHead = head;
 		head = head->next;
 		return oldHead;
 	}	
@@ -123,39 +123,45 @@ typedef struct TaskQueue {
 TaskQueue* TaskQueue_new(){
 	TaskQueue* TQ = malloc(sizeof(TaskQueue));
 	TQ->head = NULL;
-	TQ->tail = NULL;
 	return TQ;
 }
 void printContents(Task* t){
 	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", T->xmin, T->xmax, T->ymin, T->ymax, T->max);
 }
+// TODO: Pass tasks queue here not threads
 void* p_compute_image(void* arg){
-	Task* t = (Task*) arg;
-	int i,j, startY, endY;
+	/* Task* t = (Task*) arg; */
+	// Task Queue setup...
+	TaskQueue* TQ = (TaskQueue*) arg;
+	Task* t;
+	while (t = TQ.pop()){
+		int i,j, startY, endY;
 
-	int width = bitmap_width(t->bm);
-	int height = bitmap_height(t->bm);
+		int width = bitmap_width(t->bm);
+		int height = bitmap_height(t->bm);
 
-	// Modifications to height for concurrency
-	startY = height/t->threadTotal*(t->threadNum);
-	endY 	 = height/t->threadTotal*(t->threadNum+1);
-	// For every pixel in the image...
+		// Modifications to height for concurrency
+		startY = height/t->threadTotal*(t->threadNum);
+		endY 	 = height/t->threadTotal*(t->threadNum+1);
+		// For every pixel in the image...
 
-	for(j=startY;j<endY;j++) {
-		for(i=0;i<width;i++) {
+		for(j=startY;j<endY;j++) {
+			for(i=0;i<width;i++) {
 
-			// Determine the point in x,y space for that pixel.
-			double x = t->xmin + i*(t->xmax-t->xmin)/width;
-			double y = t->ymin + j*(t->ymax-t->ymin)/height;
-			
-			// Compute the color at that point.
-			int color = compute_point(x,y,t->max);
+				// Determine the point in x,y space for that pixel.
+				double x = t->xmin + i*(t->xmax-t->xmin)/width;
+				double y = t->ymin + j*(t->ymax-t->ymin)/height;
+				
+				// Compute the color at that point.
+				int color = compute_point(x,y,t->max);
 
-			// Set the pixel in the bitmap.
-			bitmap_set(t->bm,i,j,color);
+				// Set the pixel in the bitmap.
+				bitmap_set(t->bm,i,j,color);
+			}
 		}
-	}
-	return NULL;
+		// Make sure to free
+		free(t);
+	}	
 }
 int main( int argc, char *argv[] )
 {
@@ -235,7 +241,7 @@ int main( int argc, char *argv[] )
 		mytasks[i]->ymax = ycenter + scale;
 		mytasks[i]->max  = max;
 	}
-	// Create threads
+	// Create threads -- loop is based on tasks
 	for (int i = 0; i < threadTotal; i++){
 		if ((pthread_create(&mythreads[i], NULL, 
 						p_compute_image, (void*) mytasks[i])) != 0){
