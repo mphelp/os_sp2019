@@ -70,8 +70,8 @@ void show_help()
 	printf("-h           Show this help text.\n");
 }
 
-// First additions... modify compute_image + its args to be passable to threads
-struct task {
+// All the tasks
+typedef struct Task {
 	struct 	bitmap* bm;
 	double 	xmin;
 	double 	xmax;
@@ -80,13 +80,57 @@ struct task {
 	int 		max;
 	int 		threadTotal;
 	int   	threadNum;
-};
-
-void printContents(struct task* t){
-	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", t->xmin, t->xmax, t->ymin, t->ymax, t->max);
+} Task;
+typedef struct TaskNode {
+	Task* val;
+	struct TaskNode* next;
+} TaskNode;
+TaskNode* TaskNode_new(Task* t){
+	TaskNode* node = malloc(sizeof(TaskNode));
+	node->val = t;
+	node->next = NULL;
+	return node;
+}
+typedef struct TaskQueue {
+	TaskNode* head = TaskNode_new(NULL);
+	TaskNode* tail = TaskNode_new(NULL);
+	void push(TaskNode* node){
+		if (head == NULL){
+			head = node;
+			return;
+		}
+		TaskNode* prev = head;
+		TaskNode* curr = head->next;
+		while (curr != NULL){
+			prev = prev->next;
+			curr = curr->next;
+		}
+		prev->next = node;
+	}
+	bool isEmpty(){
+		return (head == NULL);
+	}
+	TaskNode* pop(){
+		if (head == NULL){
+			fprintf(stderr, "Cannot pop from empty queue, check isEmpty\n");
+			exit(1);
+		}
+		TaskNode* oldHead = head;
+		head = head->next;
+		return oldHead;
+	}	
+} TaskQueue;
+TaskQueue* TaskQueue_new(){
+	TaskQueue* TQ = malloc(sizeof(TaskQueue));
+	TQ->head = NULL;
+	TQ->tail = NULL;
+	return TQ;
+}
+void printContents(Task* t){
+	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", T->xmin, T->xmax, T->ymin, T->ymax, T->max);
 }
 void* p_compute_image(void* arg){
-	struct task* t = (struct task*) arg;
+	Task* t = (Task*) arg;
 	int i,j, startY, endY;
 
 	int width = bitmap_width(t->bm);
@@ -121,7 +165,7 @@ int main( int argc, char *argv[] )
 	// if no command line arguments are given.
 
 	int 	 threadTotal = 1;
-	const char *outfile = "fractalthread.bmp";
+	const char *outfile = "fractaltask.bmp";
 
 	double xcenter = 0;
 	double ycenter = 0;
@@ -175,12 +219,13 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
+	// TODO TODO TODO!!!
 	// Setup tasks and threads
 	pthread_t mythreads[threadTotal];
-	struct task* mytasks[threadTotal];
+	Task* mytasks[threadTotal];
 
 	for (int i = 0; i < threadTotal; i++){
-		mytasks[i] = malloc(sizeof(struct task));
+		mytasks[i] = malloc(sizeof(Task));
 		mytasks[i]->bm = bm;
 		mytasks[i]->threadTotal = threadTotal;
 		mytasks[i]->threadNum = i;
