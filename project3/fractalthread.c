@@ -108,6 +108,8 @@ struct task {
 	double 	ymin;
 	double 	ymax;
 	int 		max;
+	int 		threadTotal;
+	int   	threadNum;
 };
 
 void printContents(struct task* t){
@@ -115,14 +117,17 @@ void printContents(struct task* t){
 }
 void* p_compute_image(void* arg){
 	struct task* t = (struct task*) arg;
-	int i,j;
+	int i,j, startY, endY;
 
 	int width = bitmap_width(t->bm);
 	int height = bitmap_height(t->bm);
 
+	// Modifications to height for concurrency
+	startY = height/t->threadTotal*(t->threadNum);
+	endY 	 = height/t->threadTotal*(t->threadNum+1);
 	// For every pixel in the image...
 
-	for(j=0;j<height;j++) {
+	for(j=startY;j<endY;j++) {
 		for(i=0;i<width;i++) {
 
 			// Determine the point in x,y space for that pixel.
@@ -145,7 +150,7 @@ int main( int argc, char *argv[] )
 	// These are the default configuration values used
 	// if no command line arguments are given.
 
-	int 	 threadNum = 1;
+	int 	 threadTotal = 1;
 	const char *outfile = "fractalthread.bmp";
 
 	double xcenter = 0;
@@ -161,7 +166,7 @@ int main( int argc, char *argv[] )
 	while((c = getopt(argc,argv,"n:x:y:s:W:H:m:o:h"))!=-1) {
 		switch(c) {
 			case 'n':
-				threadNum = atoi(optarg);
+				threadTotal = atoi(optarg);
 				break;
 			case 'x':
 				xcenter = atof(optarg);
@@ -192,7 +197,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadNum,xcenter,ycenter,scale,max,outfile);
+	printf("fractal: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
@@ -201,17 +206,27 @@ int main( int argc, char *argv[] )
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
 	// ADD TO STRUCT
-	struct task* t = malloc(sizeof(struct task));
-	t->bm 	= bm;
-	t->xmin = xcenter - scale;
-	t->xmax = xcenter + scale;
-	t->ymin = ycenter - scale;
-	t->ymax = ycenter + scale;
-	t->max 	= max;
-	printf("max:%d\n",t->max);
+	struct task* mytasks[threadTotal];
+	for (int i = 0; i < threadTotal; i++){
+		/* struct task* t = malloc(sizeof(struct task)); */
+		mytasks[i] = malloc(sizeof(struct task));
+		mytasks[i]->bm = bm;
+		mytasks[i]->threadTotal = threadTotal;
+		mytasks[i]->threadNum = i;
+		/* mytasks[i]->xmin = xcenter - scale + (2*i)/threadTotal; */
+		/* mytasks[i]->xmax = xcenter - scale + (2*(i+1))/threadTotal; */
+		/* mytasks[i]->ymin = ycenter - scale + (2*i)/threadTotal; */ 
+		/* mytasks[i]->ymax = ycenter - scale + (2*(i+1))/threadTotal; */
+		mytasks[i]->xmin = xcenter - scale;
+		mytasks[i]->xmax = xcenter + scale;
+		mytasks[i]->ymin = ycenter - scale;
+		mytasks[i]->ymax = ycenter + scale;
+		mytasks[i]->max  = max;
 
-	// Compute image with struct
-	p_compute_image(t);
+		// Compute image with struct
+		p_compute_image(mytasks[i]);
+		free(mytasks[i]);
+	}
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {
@@ -219,8 +234,6 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
-	// Free
-	free(t);
 
 	return 0;
 }

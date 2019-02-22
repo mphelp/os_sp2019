@@ -65,7 +65,6 @@ void compute_image( struct bitmap *bm, double xmin, double xmax, double ymin, do
 
 	int width = bitmap_width(bm);
 	int height = bitmap_height(bm);
-	printf("height: %d, width: %d\n", height, width);
 	// For every pixel in the image...
 
 	for(j=0;j<height;j++) {
