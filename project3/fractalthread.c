@@ -109,7 +109,14 @@ struct task {
 	double 	ymax;
 	int 		max;
 };
-void p_compute_image(struct task* t){
+
+void printContents(struct task* t){
+	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", t->xmin, t->xmax, t->ymin, t->ymax, t->max);
+}
+void* p_compute_image(void* arg){
+	struct task* t = (struct task*) arg;
+	printf("in compute image\n");
+	printContents(t);
 	int i,j;
 
 	int width = bitmap_width(t->bm);
@@ -131,6 +138,7 @@ void p_compute_image(struct task* t){
 			bitmap_set(t->bm,i,j,color);
 		}
 	}
+	return NULL;
 }
 int main( int argc, char *argv[] )
 {
@@ -202,9 +210,13 @@ int main( int argc, char *argv[] )
 	t->ymin = ycenter - scale;
 	t->ymax = ycenter + scale;
 	t->max 	= max;
+	printf("max:%d\n",t->max);
 
 	// Compute image with struct
+	printf("before compute image\n");
+	printContents(t);
 	p_compute_image(t);
+	printContents(t);
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {
