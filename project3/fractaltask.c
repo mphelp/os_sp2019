@@ -95,9 +95,12 @@ typedef struct TaskQueue {
 	/* TaskNode* head = TaskNode_new(NULL); */
 	/* TaskNode* tail = TaskNode_new(NULL); */
 	Task* head;
-	void push(TaskNode* node){
+	void push(Task* node){
+		pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_lock(&lock);
 		if (head == NULL){
 			head = node;
+			pthread_mutex_unlock(&lock);
 			return;
 		}
 		Task* prev = head;
@@ -107,16 +110,21 @@ typedef struct TaskQueue {
 			curr = curr->next;
 		}
 		prev->next = node;
+		pthread_mutex_unlock(&lock);
 	}
 	bool isEmpty(){
 		return (head == NULL);
 	}
 	Task* pop(){
+		pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_lock(&lock);
 		if (head == NULL){
+			pthread_mutex_unlock(&lock);
 			return head;
 		}
 		Task* oldHead = head;
 		head = head->next;
+		pthread_mutex_unlock(&lock);
 		return oldHead;
 	}	
 } TaskQueue;
@@ -141,8 +149,8 @@ void* p_compute_image(void* arg){
 		int height = bitmap_height(t->bm);
 
 		// Modifications to height for concurrency
-		startY = height/t->threadTotal*(t->threadNum);
-		endY 	 = height/t->threadTotal*(t->threadNum+1);
+		startY = height/t->taskTotal*(t->taskNum);
+		endY 	 = height/t->taskTotal*(t->taskNum+1);
 		// For every pixel in the image...
 
 		for(j=startY;j<endY;j++) {
@@ -171,6 +179,7 @@ int main( int argc, char *argv[] )
 	// if no command line arguments are given.
 
 	int 	 threadTotal = 1;
+	int 	 taskNum = 1;
 	const char *outfile = "fractaltask.bmp";
 
 	double xcenter = 0;
@@ -185,6 +194,9 @@ int main( int argc, char *argv[] )
 
 	while((c = getopt(argc,argv,"n:x:y:s:W:H:m:o:h"))!=-1) {
 		switch(c) {
+			case 'k':
+				taskNum = atoi(optarg);
+				break;
 			case 'n':
 				threadTotal = atoi(optarg);
 				break;
@@ -217,7 +229,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,xcenter,ycenter,scale,max,outfile);
+	printf("fractal: n=%d k=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,taskNum,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
@@ -225,26 +237,29 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	// TODO TODO TODO!!!
 	// Setup tasks and threads
 	pthread_t mythreads[threadTotal];
-	Task* mytasks[threadTotal];
+	/* Task* mytasks[threadTotal]; */
+	TaskQueue* TQ = TaskQueue_new();
 
-	for (int i = 0; i < threadTotal; i++){
-		mytasks[i] = malloc(sizeof(Task));
-		mytasks[i]->bm = bm;
-		mytasks[i]->threadTotal = threadTotal;
-		mytasks[i]->threadNum = i;
-		mytasks[i]->xmin = xcenter - scale;
-		mytasks[i]->xmax = xcenter + scale;
-		mytasks[i]->ymin = ycenter - scale;
-		mytasks[i]->ymax = ycenter + scale;
-		mytasks[i]->max  = max;
+	for (int i = 0; i < taskNum; i++){
+		Task* t = malloc(sizeof(Task));
+		t->bm = bm;
+		t->taskTotal = taskTotal;
+		t->taskNum = i;
+		t->xmin = xcenter - scale;
+		t->xmax = xcenter + scale;
+		t->ymin = ycenter - scale;
+		t->ymax = ycenter + scale;
+		t->max  = max;
+		t->next = NULL;
+
+		TQ.push(t);
 	}
-	// Create threads -- loop is based on tasks
+	// Create threads 
 	for (int i = 0; i < threadTotal; i++){
 		if ((pthread_create(&mythreads[i], NULL, 
-						p_compute_image, (void*) mytasks[i])) != 0){
+						p_compute_image, (void*) TQ)) != 0){
 			fprintf(stderr, "Thread couldn't be created: %s\n",strerror(errno));
 			return 1;
 		}
@@ -253,10 +268,8 @@ int main( int argc, char *argv[] )
 	for (int i = 0; i < threadTotal; i++){
 		pthread_join(mythreads[i], NULL);
 	}
-	// Free up tasks
-	for (int i = 0; i < threadTotal; i++){
-		free(mytasks[i]);
-	}
+	// Free things
+	free(TQ);
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {
