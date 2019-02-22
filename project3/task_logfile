@@ -1,0 +1,170 @@
+Thread 1
+real	0m3.461s
+real	0m3.351s
+real	0m3.380s
+real	0m3.390s
+real	0m3.371s
+
+Thread 2
+real	0m1.782s
+real	0m1.804s
+real	0m1.757s
+real	0m1.791s
+real	0m1.786s
+
+Thread 3
+real	0m1.532s
+real	0m1.511s
+real	0m1.508s
+real	0m1.520s
+real	0m1.520s
+
+Thread 4
+real	0m1.113s
+real	0m1.106s
+real	0m1.151s
+real	0m1.117s
+real	0m1.151s
+
+Thread 5
+real	0m0.956s
+real	0m1.014s
+real	0m0.962s
+real	0m0.958s
+real	0m1.042s
+
+Thread 6
+real	0m0.875s
+real	0m0.886s
+real	0m0.901s
+real	0m0.812s
+real	0m0.852s
+
+Thread 7
+real	0m0.810s
+real	0m0.776s
+real	0m0.796s
+real	0m0.851s
+real	0m0.825s
+
+Thread 8
+real	0m0.692s
+real	0m0.698s
+real	0m0.749s
+real	0m0.758s
+real	0m0.675s
+
+Thread 9
+real	0m0.613s
+real	0m0.686s
+real	0m0.676s
+real	0m0.711s
+real	0m0.685s
+
+Thread 10
+real	0m0.622s
+real	0m0.627s
+real	0m0.654s
+real	0m0.345s
+real	0m0.664s
+
+Thread 11
+real	0m0.670s
+real	0m0.595s
+real	0m0.571s
+real	0m0.617s
+real	0m0.609s
+
+Thread 12
+Task 12
+real	0m0.615s
+real	0m0.612s
+real	0m0.626s
+real	0m0.628s
+real	0m0.637s
+
+Task 13
+real	0m0.568s
+real	0m0.571s
+Task 13
+Task 13
+real	0m0.543s
+real	0m0.570s
+Task 13
+Task 13
+real	0m0.551s
+Task 13
+real	0m0.566s
+Task 13
+real	0m0.609s
+Task 14
+real	0m0.567s
+Task 14
+Task 14
+real	0m0.551s
+real	0m0.575s
+real	0m0.574s
+real	0m0.572s
+real	0m0.633s
+
+Task 15
+Task 15
+real	0m0.647s
+Task 15
+real	0m0.607s
+real	0m0.538s
+real	0m0.558s
+real	0m0.571s
+real	0m0.554s
+
+Task 16
+real	0m0.591s
+real	0m0.605s
+Task 16
+Task 16
+real	0m0.551s
+real	0m0.534s
+real	0m0.565s
+real	0m0.574s
+Task 17
+Task 17
+Task 17
+Task 17
+real	0m0.535s
+real	0m0.494s
+real	0m0.588s
+real	0m0.359s
+Task 18
+Task 18
+real	0m0.528s
+Task 18
+real	0m0.596s
+real	0m0.595s
+Task 18
+real	0m0.526s
+Task 18
+real	0m0.517s
+Task 19
+real	0m0.537s
+Task 19
+real	0m0.544s
+
+Task 20
+real	0m0.531s
+
+Task 21
+real	0m0.588s
+
+Task 22
+Task 19
+Task 20
+Task 20
+Task 20
+real	0m0.540s
+
+Task 21
+Task 20
+Task 20
+Task 20
+Task 20
+Task 20
