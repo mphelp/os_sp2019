@@ -55,36 +55,6 @@ static int compute_point( double x, double y, int max )
 	return value_to_color(z,iter,max);
 }
 
-/*
-Compute an entire image, writing each point to the given bitmap.
-Scale the image to the range (xmin-xmax,ymin-ymax), limiting iterations to "max"
-*/
-
-void compute_image( struct bitmap *bm, double xmin, double xmax, double ymin, double ymax, int max )
-{
-	int i,j;
-
-	int width = bitmap_width(bm);
-	int height = bitmap_height(bm);
-
-	// For every pixel in the image...
-
-	for(j=0;j<height;j++) {
-		for(i=0;i<width;i++) {
-
-			// Determine the point in x,y space for that pixel.
-			double x = xmin + i*(xmax-xmin)/width;
-			double y = ymin + j*(ymax-ymin)/height;
-
-			// Compute the color at that point.
-			int color = compute_point(x,y,max);
-
-			// Set the pixel in the bitmap.
-			bitmap_set(bm,i,j,color);
-		}
-	}
-}
-
 void show_help()
 {
 	printf("Use: fractalthread [options]\n");
