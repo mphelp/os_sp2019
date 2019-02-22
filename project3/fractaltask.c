@@ -57,7 +57,7 @@ static int compute_point( double x, double y, int max )
 
 void show_help()
 {
-	printf("Use: fractalthread [options]\n");
+	printf("Use: fractaltask [options]\n");
 	printf("Where options are:\n");
 	printf("-k <tasks>   Number of tasks for threads to complete. (default=1)\n");
 	printf("-n <threads> Number of threads utilized. (default=1)\n");
@@ -225,7 +225,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: n=%d k=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,taskTotal,xcenter,ycenter,scale,max,outfile);
+	printf("fractaltask: n=%d k=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,taskTotal,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);

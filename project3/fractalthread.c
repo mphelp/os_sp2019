@@ -167,7 +167,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,xcenter,ycenter,scale,max,outfile);
+	printf("fractalthread: n=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
