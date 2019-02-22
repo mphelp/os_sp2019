@@ -59,6 +59,7 @@ void show_help()
 {
 	printf("Use: fractalthread [options]\n");
 	printf("Where options are:\n");
+	printf("-k <tasks>   Number of tasks for threads to complete. (default=1)\n");
 	printf("-n <threads> Number of threads utilized. (default=1)\n");
 	printf("-m <max>     The maximum number of iterations per point. (default=100)\n");
 	printf("-x <coord>   X coordinate of image center point. (default=0)\n");
@@ -78,71 +79,65 @@ typedef struct Task {
 	double 	ymin;
 	double 	ymax;
 	int 		max;
-	//int 		threadTotal;
-	//int   	threadNum;
 	int 	 	taskNum;
 	int 		taskTotal;
 
 	struct Task* next;
 } Task;
-/* TaskNode* TaskNode_new(Task* t){ */
-/* 	TaskNode* node = malloc(sizeof(TaskNode)); */
-/* 	node->val = t; */
-/* 	node->next = NULL; */
-/* 	return node; */
-/* } */
 typedef struct TaskQueue {
-	/* TaskNode* head = TaskNode_new(NULL); */
-	/* TaskNode* tail = TaskNode_new(NULL); */
 	Task* head;
-	void push(Task* node){
-		pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-		pthread_mutex_lock(&lock);
-		if (head == NULL){
-			head = node;
-			pthread_mutex_unlock(&lock);
-			return;
-		}
-		Task* prev = head;
-		Task* curr = head->next;
-		while (curr != NULL){
-			prev = prev->next;
-			curr = curr->next;
-		}
-		prev->next = node;
-		pthread_mutex_unlock(&lock);
-	}
-	bool isEmpty(){
-		return (head == NULL);
-	}
-	Task* pop(){
-		pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-		pthread_mutex_lock(&lock);
-		if (head == NULL){
-			pthread_mutex_unlock(&lock);
-			return head;
-		}
-		Task* oldHead = head;
-		head = head->next;
-		pthread_mutex_unlock(&lock);
-		return oldHead;
-	}	
 } TaskQueue;
+
 TaskQueue* TaskQueue_new(){
 	TaskQueue* TQ = malloc(sizeof(TaskQueue));
 	TQ->head = NULL;
 	return TQ;
 }
-void printContents(Task* t){
-	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", T->xmin, T->xmax, T->ymin, T->ymax, T->max);
+void TQpush(TaskQueue* TQ, Task* node){
+	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&lock);
+	if (TQ->head == NULL){
+		TQ->head = node;
+		pthread_mutex_unlock(&lock);
+		return;
+	}
+	Task* prev = TQ->head;
+	Task* curr = TQ->head->next;
+	while (curr != NULL){
+		prev = prev->next;
+		curr = curr->next;
+	}
+	prev->next = node;
+	pthread_mutex_unlock(&lock);
 }
+/* bool TQisEmpty(TaskQueue* TQ){ */
+/* 		return (TQ->head == NULL); */
+/* } */
+Task* TQpop(TaskQueue* TQ){
+	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&lock);
+	if (TQ->head == NULL){
+		pthread_mutex_unlock(&lock);
+		return NULL;
+	}
+	Task* oldHead = TQ->head;
+	TQ->head = TQ->head->next;
+	pthread_mutex_unlock(&lock);
+	return oldHead;
+}	
+
+
+
+/* void printContents(Task* t){ */
+/* 	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", t->xmin, t->xmax, t->ymin, t->ymax, t->max); */
+/* } */
 // TODO: Pass tasks queue here not threads
 void* p_compute_image(void* arg){
 	/* Task* t = (Task*) arg; */
 	// Task Queue setup...
 	TaskQueue* TQ = (TaskQueue*) arg;
 	Task* t;
-	while (t = TQ.pop()){
+	while ((t = TQpop(TQ)) != NULL){
 		int i,j, startY, endY;
 
 		int width = bitmap_width(t->bm);
@@ -170,6 +165,7 @@ void* p_compute_image(void* arg){
 		// Make sure to free
 		free(t);
 	}	
+	return NULL;
 }
 int main( int argc, char *argv[] )
 {
@@ -179,7 +175,7 @@ int main( int argc, char *argv[] )
 	// if no command line arguments are given.
 
 	int 	 threadTotal = 1;
-	int 	 taskNum = 1;
+	int 	 taskTotal = 1;
 	const char *outfile = "fractaltask.bmp";
 
 	double xcenter = 0;
@@ -192,10 +188,10 @@ int main( int argc, char *argv[] )
 	// For each command line argument given,
 	// override the appropriate configuration value.
 
-	while((c = getopt(argc,argv,"n:x:y:s:W:H:m:o:h"))!=-1) {
+	while((c = getopt(argc,argv,"k:n:x:y:s:W:H:m:o:h"))!=-1) {
 		switch(c) {
 			case 'k':
-				taskNum = atoi(optarg);
+				taskTotal = atoi(optarg);
 				break;
 			case 'n':
 				threadTotal = atoi(optarg);
@@ -229,7 +225,7 @@ int main( int argc, char *argv[] )
 	}
 
 	// Display the configuration of the image.
-	printf("fractal: n=%d k=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,taskNum,xcenter,ycenter,scale,max,outfile);
+	printf("fractal: n=%d k=%d x=%lf y=%lf scale=%lf max=%d outfile=%s\n",threadTotal,taskTotal,xcenter,ycenter,scale,max,outfile);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
@@ -242,7 +238,7 @@ int main( int argc, char *argv[] )
 	/* Task* mytasks[threadTotal]; */
 	TaskQueue* TQ = TaskQueue_new();
 
-	for (int i = 0; i < taskNum; i++){
+	for (int i = 0; i < taskTotal; i++){
 		Task* t = malloc(sizeof(Task));
 		t->bm = bm;
 		t->taskTotal = taskTotal;
@@ -254,7 +250,7 @@ int main( int argc, char *argv[] )
 		t->max  = max;
 		t->next = NULL;
 
-		TQ.push(t);
+		TQpush(TQ, t);
 	}
 	// Create threads 
 	for (int i = 0; i < threadTotal; i++){
