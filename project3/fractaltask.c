@@ -1,4 +1,5 @@
-
+// Name: Matthew Phelps
+// Date: Feb 22 2019
 #include "bitmap.h"
 
 #include <getopt.h>
@@ -71,7 +72,8 @@ void show_help()
 	printf("-h           Show this help text.\n");
 }
 
-// All the tasks
+// Modified task struct to be a linked list
+// where each node has current task info, next task node ptr, and total task count
 typedef struct Task {
 	struct 	bitmap* bm;
 	double 	xmin;
@@ -82,17 +84,19 @@ typedef struct Task {
 	int 	 	taskNum;
 	int 		taskTotal;
 
-	struct Task* next;
+	struct Task* next; // next task node
 } Task;
 typedef struct TaskQueue {
 	Task* head;
 } TaskQueue;
 
+// Constructor
 TaskQueue* TaskQueue_new(){
 	TaskQueue* TQ = malloc(sizeof(TaskQueue));
 	TQ->head = NULL;
 	return TQ;
 }
+// Push to Task Queue
 void TQpush(TaskQueue* TQ, Task* node){
 	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 	pthread_mutex_lock(&lock);
@@ -110,9 +114,7 @@ void TQpush(TaskQueue* TQ, Task* node){
 	prev->next = node;
 	pthread_mutex_unlock(&lock);
 }
-/* bool TQisEmpty(TaskQueue* TQ){ */
-/* 		return (TQ->head == NULL); */
-/* } */
+// Pop from Task Queue (NULL on empty queue)
 Task* TQpop(TaskQueue* TQ){
 	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 	pthread_mutex_lock(&lock);
@@ -127,16 +129,13 @@ Task* TQpop(TaskQueue* TQ){
 }	
 
 
-
-/* void printContents(Task* t){ */
-/* 	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", t->xmin, t->xmax, t->ymin, t->ymax, t->max); */
-/* } */
-// TODO: Pass tasks queue here not threads
+// Modified compute_image so that each thread completes
+// as many tasks (popped from queue) as are available
 void* p_compute_image(void* arg){
-	/* Task* t = (Task*) arg; */
-	// Task Queue setup...
+	// Setup
 	TaskQueue* TQ = (TaskQueue*) arg;
 	Task* t;
+
 	while ((t = TQpop(TQ)) != NULL){
 		int i,j, startY, endY;
 
@@ -233,9 +232,8 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	// Setup tasks and threads
+	// Setup task queue and threads
 	pthread_t mythreads[threadTotal];
-	/* Task* mytasks[threadTotal]; */
 	TaskQueue* TQ = TaskQueue_new();
 
 	for (int i = 0; i < taskTotal; i++){
@@ -250,9 +248,9 @@ int main( int argc, char *argv[] )
 		t->max  = max;
 		t->next = NULL;
 
-		TQpush(TQ, t);
+		TQpush(TQ, t); // add task to queue
 	}
-	// Create threads 
+	// Create threads and give task queue to each thread
 	for (int i = 0; i < threadTotal; i++){
 		if ((pthread_create(&mythreads[i], NULL, 
 						p_compute_image, (void*) TQ)) != 0){
@@ -260,11 +258,11 @@ int main( int argc, char *argv[] )
 			return 1;
 		}
 	}
-	// Join threads
+	// Join threads at end
 	for (int i = 0; i < threadTotal; i++){
 		pthread_join(mythreads[i], NULL);
 	}
-	// Free things
+	// Free up Task queue
 	free(TQ);
 
 	// Save the image in the stated file.

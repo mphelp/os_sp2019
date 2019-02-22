@@ -1,4 +1,5 @@
-
+// Name: Matthew Phelps
+// Date: Feb 22 2019
 #include "bitmap.h"
 
 #include <getopt.h>
@@ -70,7 +71,7 @@ void show_help()
 	printf("-h           Show this help text.\n");
 }
 
-// First additions... modify compute_image + its args to be passable to threads
+// Modify compute_image + its args to be passable to threads
 struct task {
 	struct 	bitmap* bm;
 	double 	xmin;
@@ -78,13 +79,15 @@ struct task {
 	double 	ymin;
 	double 	ymax;
 	int 		max;
-	int 		threadTotal;
-	int   	threadNum;
+	int 		threadTotal; // keep track of thread count
+	int   	threadNum;   // keep track of current thread
 };
 
 void printContents(struct task* t){
 	printf("xmin %f xmax %f ymin %f ymax %f max %d\n", t->xmin, t->xmax, t->ymin, t->ymax, t->max);
 }
+
+// compute_image modified to split up work to threads
 void* p_compute_image(void* arg){
 	struct task* t = (struct task*) arg;
 	int i,j, startY, endY;
@@ -92,7 +95,7 @@ void* p_compute_image(void* arg){
 	int width = bitmap_width(t->bm);
 	int height = bitmap_height(t->bm);
 
-	// Modifications to height for concurrency
+	// Splice height for concurrency
 	startY = height/t->threadTotal*(t->threadNum);
 	endY 	 = height/t->threadTotal*(t->threadNum+1);
 	// For every pixel in the image...
@@ -212,8 +215,6 @@ int main( int argc, char *argv[] )
 		fprintf(stderr,"fractal: couldn't write to %s: %s\n",outfile,strerror(errno));
 		return 1;
 	}
-
-
 	return 0;
 }
 
