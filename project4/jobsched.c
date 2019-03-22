@@ -17,6 +17,19 @@
 	fprintf(stderr, "%s: " M "\n", __FILE__, ##__VA_ARGS__)
 #define streq(s0, s1) (strcmp((s0), (s1)) == 0)
 
+/* Commands */
+
+/*
+	 submit <command>
+	 status
+	 wait <jobid>
+	 remove <jobid>
+	 njobs <n>
+	 drain
+	 quit
+	 help
+*/
+
 
 /* Command Line Parsing */
 void parseWordsFromLine(char* words[], char line[]){
@@ -51,19 +64,24 @@ int main(int argc, char* argv[]){
 			//commandFunc command;
 
 			// Retrieve program
+			// Probbaly could do for loop for specific commands and their commandFuncs
 			if (words[0] == NULL){ // spaces or enter key
 				continue;
-			} else if (streq(words[0], "start")){
+			} else if (streq(words[0], "help")){
+				/* command = &watchdogFunc; */
+			} else if (streq(words[0], "submit")){
 				/* command = &startFunc; */
-			} else if (streq(words[0], "run")){
+			} else if (streq(words[0], "status")){
 				/* command = &runFunc; */
 			} else if (streq(words[0], "wait")){
 				/* command = &waitFunc; */
-			} else if (streq(words[0], "waitfor")){
+			} else if (streq(words[0], "remove")){
 				/* command = &waitforFunc; */
-			} else if (streq(words[0], "watchdog")){
+			} else if (streq(words[0], "njobs")){
 				/* command = &watchdogFunc; */
-			} else if (streq(words[0], "quit") || streq(words[0], "exit")){
+			} else if (streq(words[0], "drain")){
+				/* command = &watchdogFunc; */
+			} else if (streq(words[0], "quit")){
 				return EXIT_SUCCESS;
 			} else {
 				fprintf(stderr, "... Command \'%s\' not recognized\n", words[0]);
