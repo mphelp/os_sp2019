@@ -1,0 +1,24 @@
+FRACTAL:
+
+==1385== LEAK SUMMARY:
+==1385==    definitely lost: 16 bytes in 1 blocks
+==1385==    indirectly lost: 1,228,800 bytes in 1 blocks
+==1385==      possibly lost: 0 bytes in 0 blocks
+==1385==    still reachable: 0 bytes in 0 blocks
+==1385==         suppressed: 0 bytes in 0 blocks
+
+FRACTALTHREAD:
+==1390== LEAK SUMMARY:
+==1390==    definitely lost: 16 bytes in 1 blocks
+==1390==    indirectly lost: 1,228,800 bytes in 1 blocks
+==1390==      possibly lost: 0 bytes in 0 blocks
+==1390==    still reachable: 0 bytes in 0 blocks
+==1390==         suppressed: 0 bytes in 0 blocks
+
+FRACTALTASK:
+==1399== LEAK SUMMARY:
+==1399==    definitely lost: 16 bytes in 1 blocks
+==1399==    indirectly lost: 1,228,800 bytes in 1 blocks
+==1399==      possibly lost: 0 bytes in 0 blocks
+==1399==    still reachable: 0 bytes in 0 blocks
+==1399==         suppressed: 0 bytes in 0 blocks
