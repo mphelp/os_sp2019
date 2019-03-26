@@ -1,4 +1,4 @@
-HEADERS=
+HEADERS= macros.h commands.h
 OBJECTS= jobsched.o
 
 default: jobsched

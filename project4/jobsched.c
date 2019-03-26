@@ -7,66 +7,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-/* Defines */
-#define MAX_CHARACTER_INPUT 1000
-#define MAX_DISTINCT_WORDS 	100
-// Courtesy of Prof. Bui's Systems Programming course:
-#define debug(M, ...)\
-	fprintf(stderr, "%s:%d:%s" M "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
-#define errInput(M, ...)\
-	fprintf(stderr, "%s: " M "\n", __FILE__, ##__VA_ARGS__)
-#define streq(s0, s1) (strcmp((s0), (s1)) == 0)
-
-/* Commands */
-
-/*
-	 submit <command>
-	 status
-	 wait <jobid>
-	 remove <jobid>
-	 njobs <n>
-	 drain
-	 quit
-	 help
-*/
-
-
-int helpFunc(char* words[]){
-	printf("Usage:\n");
-	printf("\tsubmit <command> - submit new job to queue\n");
-	printf("\tstatus           - get status of all jobs\n");	
-	printf("\twait <jobid>     - pause other jobs until chosen job finishes\n");
-	printf("\tremove <jobid>   - remove job from job queue if done or waited for\n");
-	printf("\tnjobs <n>        - set number of jobs the scheduler can run at once\n");
-	printf("\tdrain            - wait until all jobs are in done state\n");
-	printf("\tquit             - exit the program, regardless of jobs in queue\n");
-	printf("\thelp             - display usage\n");
-	return EXIT_SUCCESS;
-}
-int submitFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int statusFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int waitFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int removeFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int njobsFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int drainFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
+#include "macros.h"
+#include "commands.h"
 
 /* Command Functions */
 typedef int (*commandFunc)(char**);
