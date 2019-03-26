@@ -12,7 +12,7 @@
 #include "JobStructures.h"
 
 /* Command Functions */
-typedef int (*commandFunc)(char**, JobQueue*);
+typedef int (*commandFunc)(char*, char**, JobQueue*);
 
 /* Command Line Parsing */
 void parseWordsFromLine(char* words[], char line[]){
@@ -47,11 +47,12 @@ int main(int argc, char* argv[]){
 
 		// Parse from prompt
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
-
+			char* originalLine = malloc(sizeof(line));
+			strcpy(originalLine, line);
 			parseWordsFromLine(words, line);
-			commandFunc command;
 
 			// Retrieve program
+			commandFunc command;
 			if (words[0] == NULL){ // spaces or enter key
 				continue;
 			} else if (streq(words[0], "help")){
@@ -75,7 +76,7 @@ int main(int argc, char* argv[]){
 				continue;
 			}
 			// Call command:
-			int commandReturn = (*command)(words, jobqueue);
+			int commandReturn = (*command)(originalLine, words, jobqueue);
 			if (commandReturn == EXIT_FAILURE){
 				// Optional space for general command failure error checking
 			}

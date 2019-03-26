@@ -6,10 +6,11 @@
 typedef struct Job {
 	struct Job* next;
 	int id;
+	char* line;
 	char* words[];
 } Job;
 
-Job* Job_create(char* words[]){
+Job* Job_create(char* line, char* words[]){
 	// id
 	static int jobid = 1;
 	Job* job = malloc(sizeof(Job));
@@ -20,6 +21,10 @@ Job* Job_create(char* words[]){
 		job->words[i] = malloc(sizeof(words[i+1]));
 		strcpy(job->words[i], words[i+1]);	
 	}
+	// line i.e. original string of commands
+	job->line = malloc(sizeof(line));
+	strcpy(job->line, line);
+
 	// next
 	job->next = NULL;
 
@@ -51,6 +56,15 @@ int addJob(JobQueue* jobqueue, Job* job){
 	}
 	currJob->next = job; // pushed to back
 	
+	return EXIT_SUCCESS;
+}
+int showJobs(JobQueue* jobqueue){
+	printf("=== JOBS ===\n");
+	printf("jobid\tline\n");
+	printf("------------------\n");
+	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
+		printf("%d\t%s\n", currJob->id, currJob->line);
+	}
 	return EXIT_SUCCESS;
 }
 
