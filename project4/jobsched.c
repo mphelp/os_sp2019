@@ -33,14 +33,14 @@
 
 int helpFunc(char* words[]){
 	printf("Usage:\n");
-	printf("submit <command> - submit new job to be scheduled and run\n");
-	printf("status           - get status of all jobs\n");	
-	printf("wait <jobid>     - pause other jobs until chosen job finishes\n");
-	printf("remove <jobid>   - removes job from job queue if waited for or done\n");
-	printf("njobs <n>        - set number of jobs the scheduler can run at once\n");
-	printf("drain            - wait until all jobs are in done state\n");
-	printf("quit             - exit the program, regardless of jobs scheduled\n");
-	printf("help             - display usage\n");
+	printf("\tsubmit <command> - submit new job to queue\n");
+	printf("\tstatus           - get status of all jobs\n");	
+	printf("\twait <jobid>     - pause other jobs until chosen job finishes\n");
+	printf("\tremove <jobid>   - remove job from job queue if done or waited for\n");
+	printf("\tnjobs <n>        - set number of jobs the scheduler can run at once\n");
+	printf("\tdrain            - wait until all jobs are in done state\n");
+	printf("\tquit             - exit the program, regardless of jobs in queue\n");
+	printf("\thelp             - display usage\n");
 	return EXIT_SUCCESS;
 }
 int submitFunc(char* words[]){
