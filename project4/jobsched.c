@@ -9,6 +9,7 @@
 
 #include "macros.h"
 #include "commands.h"
+#include "JobStructures.h"
 
 /* Command Functions */
 typedef int (*commandFunc)(char**);
@@ -28,7 +29,11 @@ void parseWordsFromLine(char* words[], char line[]){
 char PROMPT[] = "> ";
 
 int main(int argc, char* argv[]){
+	// Initialize
+	JobQueue* jobqueue = JobQueue_create();
+
 	while (true){
+		// Display prompt
 		if (fprintf(stdout, "%s", PROMPT) < 0){
 			debug("failed to print prompt %s", strerror(errno));
 			return EXIT_FAILURE;
@@ -39,14 +44,14 @@ int main(int argc, char* argv[]){
 		}	
 		char line[MAX_CHARACTER_INPUT];
 		char* words[MAX_DISTINCT_WORDS];
-		// Parsing from prompt
+
+		// Parse from prompt
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
 
 			parseWordsFromLine(words, line);
 			commandFunc command;
 
 			// Retrieve program
-			// Probbaly could do for loop for specific commands and their commandFuncs
 			if (words[0] == NULL){ // spaces or enter key
 				continue;
 			} else if (streq(words[0], "help")){
@@ -70,7 +75,7 @@ int main(int argc, char* argv[]){
 				continue;
 			}
 			// Call command:
-			int commandReturn = (*command)(words);
+			int commandReturn = (*command)(words)(jobqueue);
 			if (commandReturn == EXIT_FAILURE){
 				// Optional space for general command failure error checking
 			}

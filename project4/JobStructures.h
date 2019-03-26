@@ -3,6 +3,7 @@
 #include <string.h>
 
 typedef struct Job {
+	Job* next;
 	int id;
 	char* words[];
 } Job;
@@ -18,17 +19,27 @@ Job* Job_create(char* words[]){
 		job->words[i] = malloc(sizeof(words[i+1]));
 		strcpy(job->words[i], words[i+1]);	
 	}
+	// next
+	job->next = NULL;
+
 	return job;
 }
 
 typedef struct JobQueue {
 	Job* front;
-	Job* back;
 
-	/* int addJob(Job j){ */
-	/* 	if (front ) */
-	/* } */
-
+	int addJob(Job* job){
+		// empty
+		if (front == NULL){
+			front = job;
+			return EXIT_SUCCESS;
+		}
+		// not empty
+		for (Job* j = front; j->next != NULL; j = j->next){}
+		j->next = job;
+		
+		return EXIT_SUCCESS;
+	}
 } JobQueue;
 
 JobQueue* JobQueue_create(){

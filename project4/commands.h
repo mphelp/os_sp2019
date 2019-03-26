@@ -26,36 +26,28 @@ int helpFunc(char* words[]){
 	printf("\thelp             - display usage\n");
 	return EXIT_SUCCESS;
 }
-int submitFunc(char* words[]){
-	Job* job1 = Job_create(words);
-	Job* job2 = Job_create(words);
-
-	printf("job1 id: %d\n", job1->id);
-	printf("job1 word0: %s\n", job1->words[0]);
-	printf("job1 word1: %s\n", job1->words[1]);
-	printf("job2 id: %d\n", job2->id);
-	printf("job2 word0: %s\n", job2->words[0]);
-	printf("job2 word1: %s\n", job2->words[1]);
+int submitFunc(char* words[], JobQueue* jq){
+	Job* job = Job_create(words);
+	
+	return EXIT_SUCCESS;
+}
+int statusFunc(char* words[], JobQueue* jq){
 
 	return EXIT_SUCCESS;
 }
-int statusFunc(char* words[]){
+int waitFunc(char* words[], JobQueue* jq){
 
 	return EXIT_SUCCESS;
 }
-int waitFunc(char* words[]){
+int removeFunc(char* words[], JobQueue* jq){
 
 	return EXIT_SUCCESS;
 }
-int removeFunc(char* words[]){
+int njobsFunc(char* words[], JobQueue* jq){
 
 	return EXIT_SUCCESS;
 }
-int njobsFunc(char* words[]){
-
-	return EXIT_SUCCESS;
-}
-int drainFunc(char* words[]){
+int drainFunc(char* words[], JobQueue* jq){
 
 	return EXIT_SUCCESS;
 }
