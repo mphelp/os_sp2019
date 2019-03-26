@@ -45,21 +45,27 @@ int helpFunc(char* words[]){
 }
 int submitFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 int statusFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 int waitFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 int removeFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 int njobsFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 int drainFunc(char* words[]){
 
+	return EXIT_SUCCESS;
 }
 
 /* Command Functions */
