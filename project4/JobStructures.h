@@ -13,10 +13,10 @@ Job* Job_create(char* words[]){
 	Job* job = malloc(sizeof(Job));
 	job->id = jobid++;
 	
-	// words i.e. commands
-	for (int i = 0; words[i] != NULL; i++){
-		job->words[i] = malloc(sizeof(words[i]));
-		strcpy(job->words[i], words[i]);	
+	// words i.e. commands (skips words[0])
+	for (int i = 0; words[i+1] != NULL; i++){
+		job->words[i] = malloc(sizeof(words[i+1]));
+		strcpy(job->words[i], words[i+1]);	
 	}
 	return job;
 }

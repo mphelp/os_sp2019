@@ -29,10 +29,13 @@ int helpFunc(char* words[]){
 int submitFunc(char* words[]){
 	Job* job1 = Job_create(words);
 	Job* job2 = Job_create(words);
-	Job* job3 = Job_create(words);
 
 	printf("job1 id: %d\n", job1->id);
+	printf("job1 word0: %s\n", job1->words[0]);
+	printf("job1 word1: %s\n", job1->words[1]);
 	printf("job2 id: %d\n", job2->id);
+	printf("job2 word0: %s\n", job2->words[0]);
+	printf("job2 word1: %s\n", job2->words[1]);
 
 	return EXIT_SUCCESS;
 }
