@@ -32,10 +32,10 @@ typedef struct JobQueue {
 } JobQueue;
 
 JobQueue* JobQueue_create(){
-	JobQueue* jq = malloc(sizeof(JobQueue));
-	jq->front = NULL;
+	JobQueue* jobqueue = malloc(sizeof(JobQueue));
+	jobqueue->front = NULL;
 	
-	return jq;
+	return jobqueue;
 }
 
 int addJob(JobQueue* jobqueue, Job* job){
@@ -45,8 +45,11 @@ int addJob(JobQueue* jobqueue, Job* job){
 		return EXIT_SUCCESS;
 	}
 	// not empty
-	for (Job* currJob = jobqueue->front; currJob->next != NULL; currJob = currJob->next){}
-	currJob->next = job;
+	Job* currJob = jobqueue->front;
+	while(currJob->next != NULL){
+		currJob = currJob->next;
+	}
+	currJob->next = job; // pushed to back
 	
 	return EXIT_SUCCESS;
 }

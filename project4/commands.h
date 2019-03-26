@@ -14,7 +14,7 @@
 
 #include "JobStructures.h"
 
-int helpFunc(char* words[]){
+int helpFunc(char* words[], JobQueue *jobqueue){
 	printf("Usage:\n");
 	printf("\tsubmit <command> - submit new job to queue\n");
 	printf("\tstatus           - get status of all jobs\n");	
@@ -26,28 +26,28 @@ int helpFunc(char* words[]){
 	printf("\thelp             - display usage\n");
 	return EXIT_SUCCESS;
 }
-int submitFunc(char* words[], JobQueue* jq){
+int submitFunc(char* words[], JobQueue* jobqueue){
 	Job* job = Job_create(words);
 	
 	return EXIT_SUCCESS;
 }
-int statusFunc(char* words[], JobQueue* jq){
+int statusFunc(char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int waitFunc(char* words[], JobQueue* jq){
+int waitFunc(char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int removeFunc(char* words[], JobQueue* jq){
+int removeFunc(char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int njobsFunc(char* words[], JobQueue* jq){
+int njobsFunc(char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int drainFunc(char* words[], JobQueue* jq){
+int drainFunc(char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
