@@ -2,8 +2,9 @@
 
 #include <string.h>
 
+// JOB
 typedef struct Job {
-	Job* next;
+	struct Job* next;
 	int id;
 	char* words[];
 } Job;
@@ -25,27 +26,29 @@ Job* Job_create(char* words[]){
 	return job;
 }
 
+// JOBQUEUE
 typedef struct JobQueue {
 	Job* front;
-
-	int addJob(Job* job){
-		// empty
-		if (front == NULL){
-			front = job;
-			return EXIT_SUCCESS;
-		}
-		// not empty
-		for (Job* j = front; j->next != NULL; j = j->next){}
-		j->next = job;
-		
-		return EXIT_SUCCESS;
-	}
 } JobQueue;
 
 JobQueue* JobQueue_create(){
 	JobQueue* jq = malloc(sizeof(JobQueue));
 	jq->front = NULL;
-	jq->back  = NULL;
 	
 	return jq;
 }
+
+int addJob(JobQueue* jobqueue, Job* job){
+	// empty
+	if (jobqueue->front == NULL){
+		jobqueue->front = job;
+		return EXIT_SUCCESS;
+	}
+	// not empty
+	for (Job* currJob = jobqueue->front; currJob->next != NULL; currJob = currJob->next){}
+	currJob->next = job;
+	
+	return EXIT_SUCCESS;
+}
+
+
