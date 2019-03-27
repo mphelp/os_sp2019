@@ -67,7 +67,11 @@ int addJob(JobQueue* jobqueue, Job* job){
 int showJobs(JobQueue* jobqueue){
 	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
 	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
-		printf("%d\t%s\t%d\t%s\n", currJob->id, StateStrs[currJob->state], currJob->exit, currJob->commandList);
+		if (currJob->exit == -1){
+			printf("%d\t%s\t%s\t%s\n", currJob->id, StateStrs[currJob->state], "-", currJob->commandList);
+		} else {
+			printf("%d\t%s\t%d\t%s\n", currJob->id, StateStrs[currJob->state], currJob->exit, currJob->commandList);
+		}
 	}
 	return EXIT_SUCCESS;
 }
