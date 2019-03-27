@@ -1,13 +1,10 @@
 HEADERS= macros.h commands.h JobStructures.h
-OBJECTS= jobsched.o
+LIB= -lpthread
 
 default: jobsched
 
-%.o: %.c $(HEADERS)
-	gcc -c $< -o $@
-
-jobsched: $(OBJECTS)
-	gcc $(OBJECTS) -o $@
+jobsched: jobsched.c $(HEADERS)
+	gcc jobsched.c -o $@ $(LIB)
 
 clean:
 	-rm -f $(OBJECTS)

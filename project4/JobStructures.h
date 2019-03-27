@@ -65,26 +65,40 @@ int addJob(JobQueue* jobqueue, Job* job){
 	
 	return EXIT_SUCCESS;
 }
-int runJob(pthread_t ptid, Job* awaitingJob){
+int runJob(Job* awaitingJob){
+	awaitingJob->state = RUN;
+
+	int rc = fork();
+	if (rc < 0){
+		debug("Fork failed");
+		return EXIT_FAILURE;
+	}	else if (rc == 0){
+		printf("%s: process %d started\n", SHELL, (int)getpid());
+		execvp(awaitingJob->words[0], awaitingJob->words);
+		exit(1);
+	} else {
+		// assumption: parent does not wait explicitly
+	}
+
+
 	return EXIT_SUCCESS;
 }
-int selectJob(pthread_t ptid, JobQueue* jobqueue, Job* awaitingJob){
+int selectJob(JobQueue* jobqueue){
 	// GOAL: pop from queue if possible
 	if (jobqueue->front == NULL){
 		return 1; // empty
 	}
 	// not empty
-	awaitingJob = jobqueue->front;
+	Job* awaitingJob = jobqueue->front;
 	while (awaitingJob->state != WAIT){
 		awaitingJob = awaitingJob->next;
 		if (awaitingJob == NULL){
 			return 2; // no job able to run, reached end
 		}
 	}
-	awaitingJob->state = RUN;
 
-	// send awaitingJob to other thread
-	int x = runJob(ptid, awaitingJob);
+	// send awaitingJob to other thread : state becomes RUN
+	int x = runJob(awaitingJob);
 
 	return x;
 } 

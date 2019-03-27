@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <pthread.h>
 
 #include "macros.h"
 #include "commands.h"
@@ -26,12 +27,23 @@ void parseWordsFromLine(char* words[], char line[]){
 	words[nwords] = NULL;
 }
 
+// Globals
 char PROMPT[] = "> ";
+JobQueue* jobqueue; 
+
+void* schedThreadFunc(void* arg){
+	int returnVal;
+	while(1){
+		returnVal = selectJob(jobqueue);
+	}
+	return NULL;
+}
 
 int main(int argc, char* argv[]){
 	// Initialize
-	JobQueue* jobqueue = JobQueue_create();
-
+	jobqueue = JobQueue_create();
+	pthread_t schedThread;
+	pthread_create(&schedThread, NULL, schedThreadFunc, NULL);
 	while (true){
 		// Display prompt
 		if (fprintf(stdout, "%s", PROMPT) < 0){
