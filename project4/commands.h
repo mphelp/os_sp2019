@@ -29,6 +29,10 @@ int helpFunc(char* commandList, char* words[], JobQueue *jobqueue){
 }
 int submitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	// Create and add job
+	if (words[1] == NULL){
+		errInput2("Submit requires <command> to be run");
+		return EXIT_FAILURE;
+	}
 	Job* job = Job_create(commandList, words);
 	if (addJob(jobqueue, job) < 0){
 		debug("Failed to add job to queue");
@@ -52,7 +56,7 @@ int waitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 }
 int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	// temporarily only removes front
-	Job* poppedJob = Job_create(commandList, words);
+	Job* poppedJob = malloc(sizeof(Job));
 	if (popJob(jobqueue, poppedJob) < 0){
 		debug("Failed to pop job from queue");
 		return EXIT_FAILURE;
