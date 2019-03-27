@@ -51,6 +51,12 @@ int waitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	return EXIT_SUCCESS;
 }
 int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
+	// temporarily only removes front
+	Job* poppedJob = Job_create(commandList, words);
+	if (popJob(jobqueue, poppedJob) < 0){
+		debug("Failed to pop job from queue");
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }

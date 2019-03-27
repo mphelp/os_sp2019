@@ -64,6 +64,16 @@ int addJob(JobQueue* jobqueue, Job* job){
 	
 	return EXIT_SUCCESS;
 }
+int popJob(JobQueue* jobqueue, Job* poppedJob){
+	// empty
+	if (jobqueue->front == NULL){
+		return 1;
+	}
+	// not empty
+	poppedJob = jobqueue->front;
+	jobqueue->front = jobqueue->front->next;
+	return EXIT_SUCCESS;
+} 
 int showJobs(JobQueue* jobqueue){
 	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
 	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
