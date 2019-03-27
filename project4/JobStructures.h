@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string.h>
+#include <pthread.h>
 
-// JOB
-typedef enum { RUN=0, WAIT, DONE } State;
-char* StateStrs[] = {"RUN", "WAIT", "DONE"};
+// JOB ===============================================
+typedef enum { WAIT=0, RUN, DONE } State;
+char* StateStrs[] = {"WAIT", "RUN", "DONE"};
 typedef struct Job {
 	int id;
 	struct Job* next;
@@ -31,13 +32,13 @@ Job* Job_create(char* commandList, char* words[]){
 
 	// next, state, exit
 	job->next = NULL;
-	job->state = RUN;
+	job->state = WAIT;
 	job->exit = -1;
 
 	return job;
 }
 
-// JOBQUEUE
+// JOBQUEUE ===========================================
 typedef struct JobQueue {
 	Job* front;
 } JobQueue;
@@ -56,23 +57,36 @@ int addJob(JobQueue* jobqueue, Job* job){
 		return EXIT_SUCCESS;
 	}
 	// not empty
-	Job* currJob = jobqueue->front;
-	while(currJob->next != NULL){
-		currJob = currJob->next;
+	Job* newJob = jobqueue->front;
+	while(newJob->next != NULL){
+		newJob = newJob->next;
 	}
-	currJob->next = job; // pushed to back
+	newJob->next = job; // pushed to back
 	
 	return EXIT_SUCCESS;
 }
-int popJob(JobQueue* jobqueue, Job* poppedJob){
-	// empty
+int runJob(pthread_t ptid, Job* awaitingJob){
+	return EXIT_SUCCESS;
+}
+int selectJob(pthread_t ptid, JobQueue* jobqueue, Job* awaitingJob){
+	// GOAL: pop from queue if possible
 	if (jobqueue->front == NULL){
-		return 1;
+		return 1; // empty
 	}
 	// not empty
-	poppedJob = jobqueue->front;
-	jobqueue->front = jobqueue->front->next;
-	return EXIT_SUCCESS;
+	awaitingJob = jobqueue->front;
+	while (awaitingJob->state != WAIT){
+		awaitingJob = awaitingJob->next;
+		if (awaitingJob == NULL){
+			return 2; // no job able to run, reached end
+		}
+	}
+	awaitingJob->state = RUN;
+
+	// send awaitingJob to other thread
+	int x = runJob(ptid, awaitingJob);
+
+	return x;
 } 
 int showJobs(JobQueue* jobqueue){
 	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
@@ -84,6 +98,9 @@ int showJobs(JobQueue* jobqueue){
 		}
 	}
 	return EXIT_SUCCESS;
+}
+int runJobs(JobQueue* jobqueue){
+	
 }
 
 

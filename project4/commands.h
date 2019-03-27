@@ -55,12 +55,17 @@ int waitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	return EXIT_SUCCESS;
 }
 int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
+	// this should just be selectJob BUT sets to DONE not RUN
+	// only difference
+
+
+
 	// temporarily only removes front
-	Job* poppedJob = malloc(sizeof(Job));
-	if (popJob(jobqueue, poppedJob) < 0){
-		debug("Failed to pop job from queue");
-		return EXIT_FAILURE;
-	}
+	/* Job* poppedJob = malloc(sizeof(Job)); */
+	/* if (popJob(jobqueue, poppedJob) < 0){ */
+	/* 	debug("Failed to pop job from queue"); */
+	/* 	return EXIT_FAILURE; */
+	/* } */
 
 	return EXIT_SUCCESS;
 }
