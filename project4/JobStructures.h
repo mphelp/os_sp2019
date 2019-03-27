@@ -2,38 +2,49 @@
 
 #include <string.h>
 #include <pthread.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
 
 // JOB ===============================================
 typedef enum { WAIT=0, RUN, DONE } State;
 char* StateStrs[] = {"WAIT", "RUN", "DONE"};
 typedef struct Job {
 	int id;
+	pid_t pid;
 	struct Job* next;
 	State state;
 	int exit;
 	char* commandList;
-	char* words[];
+	char** words;
 } Job;
 
-Job* Job_create(char* commandList, char* words[]){
+Job* Job_create(char* commandList, int nwords, char* words[]){
 	// id
 	static int jobid = 1;
 	Job* job = malloc(sizeof(Job));
 	job->id = jobid++;
 	
 	// words i.e. commands (skips words[0])
-	for (int i = 0; words[i+1] != NULL; i++){
-		job->words[i] = malloc(sizeof(words[i+1]));
-		strcpy(job->words[i], words[i+1]);	
+	job->words = malloc(nwords*sizeof(char*));
+	int i;
+	for (i = 0; words[i+1] != NULL; i++){
+		/* job->words[i] = malloc(sizeof(words[i+1])); */
+		/* strcpy(job->words[i], words[i+1]); */	
+		job->words[i] = strdup(words[i+1]);
+		/* printf("jw %d: %s, w %d: %s\n", i, job->words[i], i, words[i]); */
 	}
+	job->words[i] = '\0'; // null terminated
+
 	// string of commands
 	job->commandList = malloc(sizeof(commandList));
 	strcpy(job->commandList, commandList);
 
-	// next, state, exit
+	// next, state, exit, pid
 	job->next = NULL;
 	job->state = WAIT;
 	job->exit = -1;
+	job->pid = -1;
 
 	return job;
 }
@@ -49,7 +60,6 @@ JobQueue* JobQueue_create(){
 	
 	return jobqueue;
 }
-
 int addJob(JobQueue* jobqueue, Job* job){
 	// empty
 	if (jobqueue->front == NULL){
@@ -65,25 +75,46 @@ int addJob(JobQueue* jobqueue, Job* job){
 	
 	return EXIT_SUCCESS;
 }
+
+// Selecting job and running it
 int runJob(Job* awaitingJob){
 	awaitingJob->state = RUN;
+	// print out words of job:
+	/* for (int i = 0; awaitingJob->words[i] != NULL; i++){ */
+	/* 	printf("word %d: %s,  ", i, awaitingJob->words[i]); */
+	/* } */
+	/* printf("\n"); */
 
-	int rc = fork();
+	pid_t rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
 		return EXIT_FAILURE;
 	}	else if (rc == 0){
-		printf("%s: process %d started\n", SHELL, (int)getpid());
+		/* printf("--> command %s ... process %d started\n", 
+				awaitingJob->words[0], (int)getpid());*/
+
 		execvp(awaitingJob->words[0], awaitingJob->words);
+		debug(": Failed... %s", strerror(errno));
 		exit(1);
 	} else {
-		// assumption: parent does not wait explicitly
+		awaitingJob->pid = rc;
 	}
-
-
 	return EXIT_SUCCESS;
 }
-int selectJob(JobQueue* jobqueue){
+int indicateCompleteJob(JobQueue* jobqueue, pid_t pid, int exitStatus){
+	Job* currJob = jobqueue->front;
+	while (currJob != NULL){
+		// found correct job
+		if (currJob->pid == pid){
+			currJob->state = DONE;
+			currJob->exit = exitStatus;
+			return EXIT_SUCCESS;
+		}
+		currJob = currJob->next;
+	}
+	return 2; // reached end
+}
+int selectJobToRun(JobQueue* jobqueue){
 	// GOAL: pop from queue if possible
 	if (jobqueue->front == NULL){
 		return 1; // empty
@@ -102,10 +133,12 @@ int selectJob(JobQueue* jobqueue){
 
 	return x;
 } 
+
+// Displaying jobs for "status" command
 int showJobs(JobQueue* jobqueue){
 	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
 	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
-		if (currJob->exit == -1){
+		if (currJob->state == WAIT || currJob->state == RUN){
 			printf("%d\t%s\t%s\t%s\n", currJob->id, StateStrs[currJob->state], "-", currJob->commandList);
 		} else {
 			printf("%d\t%s\t%d\t%s\n", currJob->id, StateStrs[currJob->state], currJob->exit, currJob->commandList);
@@ -113,8 +146,4 @@ int showJobs(JobQueue* jobqueue){
 	}
 	return EXIT_SUCCESS;
 }
-int runJobs(JobQueue* jobqueue){
-	
-}
-
 

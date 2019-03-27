@@ -15,7 +15,7 @@
 #include "JobStructures.h"
 #include "macros.h"
 
-int helpFunc(char* commandList, char* words[], JobQueue *jobqueue){
+int helpFunc(char* commandList, char* words[], int nwords, JobQueue *jobqueue){
 	printf("Usage:\n");
 	printf("\tsubmit <command> - submit new job to queue\n");
 	printf("\tstatus           - get status of all jobs\n");	
@@ -27,22 +27,22 @@ int helpFunc(char* commandList, char* words[], JobQueue *jobqueue){
 	printf("\thelp             - display usage\n");
 	return EXIT_SUCCESS;
 }
-int submitFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int submitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	// Create and add job
 	if (words[1] == NULL){
 		errInput2("Submit requires <command> to be run");
 		return EXIT_FAILURE;
 	}
-	Job* job = Job_create(commandList, words);
+	Job* job = Job_create(commandList, nwords, words);
 	if (addJob(jobqueue, job) < 0){
 		debug("Failed to add job to queue");
 		return EXIT_FAILURE;	
 	}
-	printf("Job %d submitted.\n", job->id);
+	printf("Job %d Submitted.\n", job->id);
 
 	return EXIT_SUCCESS;
 }
-int statusFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int statusFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	// show job in queue
 	if (showJobs(jobqueue) < 0){
 		debug("Failed to show jobs in queue");
@@ -50,11 +50,11 @@ int statusFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	}	
 	return EXIT_SUCCESS;
 }
-int waitFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int waitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	// this should just be selectJob BUT sets to DONE not RUN
 	// only difference
 
@@ -69,11 +69,11 @@ int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int njobsFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int njobsFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int drainFunc(char* commandList, char* words[], JobQueue* jobqueue){
+int drainFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }

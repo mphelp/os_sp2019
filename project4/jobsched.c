@@ -13,10 +13,10 @@
 #include "JobStructures.h"
 
 /* Command Functions */
-typedef int (*commandFunc)(char*, char**, JobQueue*);
+typedef int (*commandFunc)(char*, char**, int, JobQueue*);
 
 /* Command Line Parsing */
-void parseWordsFromLine(char* words[], char line[]){
+int parseWordsFromLine(char* words[], char line[]){
 	words[0] = strtok(line," \t\n");
 	int nwords = 1;
 	while ((words[nwords] = strtok(0, " \t\n")) != NULL){
@@ -25,16 +25,30 @@ void parseWordsFromLine(char* words[], char line[]){
 		nwords++;
 	}
 	words[nwords] = NULL;
+	return nwords;
 }
 
 // Globals
 char PROMPT[] = "> ";
 JobQueue* jobqueue; 
 
+// Threads
+void handler(int sig){
+	int status;
+	pid_t pid;
+	pid = wait(&status);
+	if (WIFEXITED(status)){
+		// zero on success, 2 on all jobs completed
+		int returnVal = indicateCompleteJob(jobqueue, pid, WEXITSTATUS(status));
+	} else {
+		printf("Job with pid %d did not exit\n", pid);
+	}
+}
 void* schedThreadFunc(void* arg){
+	signal(SIGCHLD, handler);
 	int returnVal;
 	while(1){
-		returnVal = selectJob(jobqueue);
+		returnVal = selectJobToRun(jobqueue);
 	}
 	return NULL;
 }
@@ -44,6 +58,7 @@ int main(int argc, char* argv[]){
 	jobqueue = JobQueue_create();
 	pthread_t schedThread;
 	pthread_create(&schedThread, NULL, schedThreadFunc, NULL);
+
 	while (true){
 		// Display prompt
 		if (fprintf(stdout, "%s", PROMPT) < 0){
@@ -63,7 +78,7 @@ int main(int argc, char* argv[]){
 			char* commandList = malloc(sizeof(line));
 			strcpy(commandList, line);
 			commandList[strlen(commandList)-1] = 0;
-			parseWordsFromLine(words, line);
+			int nwords = parseWordsFromLine(words, line);
 			if (words[0] != NULL){
 				commandList = commandList + strlen(words[0]) + 1;
 			}
@@ -93,7 +108,7 @@ int main(int argc, char* argv[]){
 				continue;
 			}
 			// Call command:
-			int commandReturn = (*command)(commandList, words, jobqueue);
+			int commandReturn = (*command)(commandList, words, nwords, jobqueue);
 			if (commandReturn == EXIT_FAILURE){
 				// Optional space for general command failure error checking
 			}

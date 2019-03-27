@@ -1,10 +1,11 @@
 HEADERS= macros.h commands.h JobStructures.h
+FLAGS= -Wall -Wpedantic -g
 LIB= -lpthread
 
 default: jobsched
 
 jobsched: jobsched.c $(HEADERS)
-	gcc jobsched.c -o $@ $(LIB)
+	gcc jobsched.c $(FLAGS) -o $@ $(LIB)
 
 clean:
 	-rm -f $(OBJECTS)
