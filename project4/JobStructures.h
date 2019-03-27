@@ -59,9 +59,7 @@ int addJob(JobQueue* jobqueue, Job* job){
 	return EXIT_SUCCESS;
 }
 int showJobs(JobQueue* jobqueue){
-	printf("=== JOBS ===\n");
-	printf("jobid\tline\n");
-	printf("------------------\n");
+	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
 	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
 		printf("%d\t%s\n", currJob->id, currJob->line);
 	}
