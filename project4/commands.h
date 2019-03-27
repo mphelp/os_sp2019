@@ -15,7 +15,7 @@
 #include "JobStructures.h"
 #include "macros.h"
 
-int helpFunc(char* line, char* words[], JobQueue *jobqueue){
+int helpFunc(char* commandList, char* words[], JobQueue *jobqueue){
 	printf("Usage:\n");
 	printf("\tsubmit <command> - submit new job to queue\n");
 	printf("\tstatus           - get status of all jobs\n");	
@@ -27,9 +27,9 @@ int helpFunc(char* line, char* words[], JobQueue *jobqueue){
 	printf("\thelp             - display usage\n");
 	return EXIT_SUCCESS;
 }
-int submitFunc(char* line, char* words[], JobQueue* jobqueue){
+int submitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	// Create and add job
-	Job* job = Job_create(line, words);
+	Job* job = Job_create(commandList, words);
 	if (addJob(jobqueue, job) < 0){
 		debug("Failed to add job to queue");
 		return EXIT_FAILURE;	
@@ -38,7 +38,7 @@ int submitFunc(char* line, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int statusFunc(char* line, char* words[], JobQueue* jobqueue){
+int statusFunc(char* commandList, char* words[], JobQueue* jobqueue){
 	// show job in queue
 	if (showJobs(jobqueue) < 0){
 		debug("Failed to show jobs in queue");
@@ -46,19 +46,19 @@ int statusFunc(char* line, char* words[], JobQueue* jobqueue){
 	}	
 	return EXIT_SUCCESS;
 }
-int waitFunc(char* line, char* words[], JobQueue* jobqueue){
+int waitFunc(char* commandList, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int removeFunc(char* line, char* words[], JobQueue* jobqueue){
+int removeFunc(char* commandList, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int njobsFunc(char* line, char* words[], JobQueue* jobqueue){
+int njobsFunc(char* commandList, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }
-int drainFunc(char* line, char* words[], JobQueue* jobqueue){
+int drainFunc(char* commandList, char* words[], JobQueue* jobqueue){
 
 	return EXIT_SUCCESS;
 }

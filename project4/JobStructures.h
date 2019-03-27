@@ -3,14 +3,18 @@
 #include <string.h>
 
 // JOB
+typedef enum { RUN=0, WAIT, DONE } State;
+char* StateStrs[] = {"RUN", "WAIT", "DONE"};
 typedef struct Job {
-	struct Job* next;
 	int id;
-	char* line;
+	struct Job* next;
+	State state;
+	int exit;
+	char* commandList;
 	char* words[];
 } Job;
 
-Job* Job_create(char* line, char* words[]){
+Job* Job_create(char* commandList, char* words[]){
 	// id
 	static int jobid = 1;
 	Job* job = malloc(sizeof(Job));
@@ -21,12 +25,14 @@ Job* Job_create(char* line, char* words[]){
 		job->words[i] = malloc(sizeof(words[i+1]));
 		strcpy(job->words[i], words[i+1]);	
 	}
-	// line i.e. original string of commands
-	job->line = malloc(sizeof(line));
-	strcpy(job->line, line);
+	// string of commands
+	job->commandList = malloc(sizeof(commandList));
+	strcpy(job->commandList, commandList);
 
-	// next
+	// next, state, exit
 	job->next = NULL;
+	job->state = RUN;
+	job->exit = -1;
 
 	return job;
 }
@@ -61,7 +67,7 @@ int addJob(JobQueue* jobqueue, Job* job){
 int showJobs(JobQueue* jobqueue){
 	printf("JOBID\tSTATE\tEXIT\tCOMMAND\n");
 	for (Job* currJob = jobqueue->front; currJob != NULL; currJob = currJob->next){
-		printf("%d\t%s\n", currJob->id, currJob->line);
+		printf("%d\t%s\t%d\t%s\n", currJob->id, StateStrs[currJob->state], currJob->exit, currJob->commandList);
 	}
 	return EXIT_SUCCESS;
 }

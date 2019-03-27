@@ -47,10 +47,14 @@ int main(int argc, char* argv[]){
 
 		// Parse from prompt
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
-			char* originalLine = malloc(sizeof(line));
-			strcpy(originalLine, line);
-			originalLine[strlen(originalLine)-1] = 0;
+			// Get commands (or extra args) in line for status
+			char* commandList = malloc(sizeof(line));
+			strcpy(commandList, line);
+			commandList[strlen(commandList)-1] = 0;
 			parseWordsFromLine(words, line);
+			if (words[0] != NULL){
+				commandList = commandList + strlen(words[0]) + 1;
+			}
 
 			// Retrieve program
 			commandFunc command;
@@ -77,7 +81,7 @@ int main(int argc, char* argv[]){
 				continue;
 			}
 			// Call command:
-			int commandReturn = (*command)(originalLine, words, jobqueue);
+			int commandReturn = (*command)(commandList, words, jobqueue);
 			if (commandReturn == EXIT_FAILURE){
 				// Optional space for general command failure error checking
 			}
