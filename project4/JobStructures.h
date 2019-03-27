@@ -133,7 +133,7 @@ int indicateCompleteJob(JobQueue* jobqueue, pid_t pid, int exitStatus){
 	return 2; // reached end
 }
 int selectJobToRun(JobQueue* jobqueue){
-	// GOAL: pop from queue if possible
+	// GOAL: select job to complete, thus "popped" from queue
 	if (jobqueue->front == NULL){
 		return 1; // empty
 	}
@@ -142,14 +142,29 @@ int selectJobToRun(JobQueue* jobqueue){
 	while (awaitingJob->state != WAIT){
 		awaitingJob = awaitingJob->next;
 		if (awaitingJob == NULL){
-			return 2; // no job able to run, reached end
+			return 1; // no job able to run, reached end
 		}
 	}
-
-	// send awaitingJob to other thread : state becomes RUN
-	int x = runJob(awaitingJob);
-
-	return x;
+	// send awaitingJob to other thread execution : state becomes RUN
+	return runJob(awaitingJob);
+}
+int removeJob(JobQueue* jobqueue, int id){
+	// GOAL: remove job from queue, cannot be in RUN state
+	if (jobqueue->front == NULL){
+		return 1; // empty
+	}
+	// not empty
+	Job* awaitingJob = jobqueue->front;
+	// ADD ANOTHER JOB PREV TO REMOVE AWAITING
+	while (awaitingJob != NULL && awaitingJob->id != id){}
+	if (awaitingJob == NULL){
+		return 1; // reached end, job does not exist
+	} else if (awaitingJob->state == RUN){
+		return -1; // job is being run currently
+	} else {
+		// actually remove from queue and delete any output file
+		
+	}
 } 
 
 // Displaying jobs for "status" command
