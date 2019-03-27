@@ -49,6 +49,7 @@ int main(int argc, char* argv[]){
 		if (fgets(line, MAX_CHARACTER_INPUT, stdin) != NULL){
 			char* originalLine = malloc(sizeof(line));
 			strcpy(originalLine, line);
+			originalLine[strlen(originalLine)-1] = 0;
 			parseWordsFromLine(words, line);
 
 			// Retrieve program
