@@ -1,5 +1,8 @@
 #pragma once
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -93,6 +96,21 @@ int runJob(Job* awaitingJob){
 		/* printf("--> command %s ... process %d started\n", 
 				awaitingJob->words[0], (int)getpid());*/
 
+		// Make directory of output files if needed
+		struct stat st = {0};
+		if (stat("./outputs", &st) == -1){
+			mkdir("./outputs", 0775);
+		}
+		// Open output file
+		char outputFileName[10];
+		sprintf(outputFileName, "./outputs/output.%d", awaitingJob->id);
+		int outputFD = open(outputFileName, 
+				O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		dup2(outputFD, 1);
+		dup2(outputFD, 2);
+		close(outputFD);
+
+		// Execute job
 		execvp(awaitingJob->words[0], awaitingJob->words);
 		debug(": Failed... %s", strerror(errno));
 		exit(1);
