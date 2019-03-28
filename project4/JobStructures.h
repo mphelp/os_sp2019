@@ -153,17 +153,20 @@ int removeJob(JobQueue* jobqueue, int id){
 	if (jobqueue->front == NULL){
 		return 1; // empty
 	}
-	// not empty
-	Job* awaitingJob = jobqueue->front;
-	// ADD ANOTHER JOB PREV TO REMOVE AWAITING
-	while (awaitingJob != NULL && awaitingJob->id != id){}
+	// not empty, attempt to remove
+	Job* awaitingJob = jobqueue->front->next;
+	Job* prevJob     = jobqueue->front;
+	while (awaitingJob != NULL && awaitingJob->id != id){
+		awaitingJob = awaitingJob->next;
+		prevJob     = prevJob->next;
+	}
 	if (awaitingJob == NULL){
 		return 1; // reached end, job does not exist
 	} else if (awaitingJob->state == RUN){
 		return -1; // job is being run currently
 	} else {
 		// actually remove from queue and delete any output file
-		
+		prevJob->next = awaitingJob->next;	
 	}
 } 
 
