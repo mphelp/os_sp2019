@@ -1,5 +1,7 @@
 #pragma once
 
+#include <inttypes.h>
+
 /* Commands */
 /*
 	 submit <command>
@@ -38,12 +40,12 @@ int submitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue)
 		debug("Failed to add job to queue");
 		return EXIT_FAILURE;	
 	}
-	printf("Job %d Submitted.\n", job->id);
+	printf("Job %d submitted.\n", job->id);
 
 	return EXIT_SUCCESS;
 }
 int statusFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
-	// show job in queue
+	// show jobs in queue
 	if (showJobs(jobqueue) < 0){
 		debug("Failed to show jobs in queue");
 		return EXIT_FAILURE;
@@ -55,18 +57,12 @@ int waitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	return EXIT_SUCCESS;
 }
 int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
-	// this should just be selectJob BUT sets to DONE not RUN
-	// only difference
-
-
-
-	// temporarily only removes front
-	/* Job* poppedJob = malloc(sizeof(Job)); */
-	/* if (popJob(jobqueue, poppedJob) < 0){ */
-	/* 	debug("Failed to pop job from queue"); */
-	/* 	return EXIT_FAILURE; */
-	/* } */
-
+	// remove non-running job from queue
+	int id = strtoumax(words[1], NULL, 10);
+	if (removeJob(jobqueue, id) < 0){
+		fprintf(stderr, "ERROR: Cannot remove running job ...\n");
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 int njobsFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){

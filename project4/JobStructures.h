@@ -167,6 +167,7 @@ int removeJob(JobQueue* jobqueue, int id){
 	} else {
 		// actually remove from queue and delete any output file
 		prevJob->next = awaitingJob->next;	
+		return EXIT_SUCCESS;
 	}
 } 
 
