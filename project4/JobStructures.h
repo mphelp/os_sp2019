@@ -121,7 +121,7 @@ int runJob(Job* awaitingJob){
 
 		// Execute job
 		execvp(awaitingJob->words[0], awaitingJob->words);
-		debug(": Failed... %s", strerror(errno));
+		debug(": Unable to run job ... %s", strerror(errno));
 		exit(1);
 	} else {
 		awaitingJob->pid = rc;
@@ -156,47 +156,68 @@ int numJobsRunning(JobQueue* jobqueue){
 	return nrunning;
 }
 int selectJobToRun(JobQueue* jobqueue){
+	int returnVal;
 	pthread_mutex_lock(&jobqueue->mutex);
 	// GOAL: select job to complete, thus "popped" from queue
 	if (jobqueue->front == NULL){
-		pthread_mutex_unlock(&jobqueue->mutex);
-		return 1; // empty
-	}
-	// not empty
-	Job* awaitingJob = jobqueue->front;
-	while (awaitingJob->state != WAIT){
-		awaitingJob = awaitingJob->next;
-		if (awaitingJob == NULL){
-			pthread_mutex_unlock(&jobqueue->mutex);
-			return 1; // no job able to run, reached end
+		returnVal = 1; // empty
+	} else {
+		// not empty
+		Job* awaitingJob = jobqueue->front;
+		while (awaitingJob->state != WAIT){
+			awaitingJob = awaitingJob->next;
+			if (awaitingJob == NULL){
+				returnVal = 1; // no job able to run, reached end
+				break;
+			}
+		}
+		if (awaitingJob != NULL){
+			returnVal = runJob(awaitingJob);
 		}
 	}
-	// send awaitingJob to other thread execution : state becomes RUN
+		// send awaitingJob to other thread execution : state becomes RUN
 	pthread_mutex_unlock(&jobqueue->mutex);
-	return runJob(awaitingJob);
+	return returnVal;
 }
 int removeJob(JobQueue* jobqueue, int id){
 	pthread_mutex_lock(&jobqueue->mutex);
 	// GOAL: remove job from queue, cannot be in RUN state
 	if (jobqueue->front == NULL){
+		/* printf("EMPTY\n"); */
 		pthread_mutex_unlock(&jobqueue->mutex);
 		return 1; // empty
+	} else if (jobqueue->front->id == id){
+		jobqueue->front = jobqueue->front->next;
+	
+		// actually remove from queue and delete any output file
+		char outputFileName[20];
+		sprintf(outputFileName, "./outputs/output.%d", id);
+		remove(outputFileName);
+		pthread_mutex_unlock(&jobqueue->mutex);
+		return EXIT_SUCCESS;
 	}
 	// not empty, attempt to remove
 	Job* awaitingJob = jobqueue->front->next;
 	Job* prevJob     = jobqueue->front;
-	while (awaitingJob != NULL && awaitingJob->id != id){
+	while (prevJob->next != NULL && awaitingJob->id != id){
+		/* printf("this job id: %d\n", awaitingJob->id); */
 		awaitingJob = awaitingJob->next;
 		prevJob     = prevJob->next;
 	}
-	if (awaitingJob == NULL){
+	if (prevJob->next == NULL){
+		/* printf("NOT FOUND\n"); */
+		pthread_mutex_unlock(&jobqueue->mutex);
 		return 1; // reached end, job does not exist
-		pthread_mutex_unlock(&jobqueue->mutex);
 	} else if (awaitingJob->state == RUN){
-		return -1; // job is being run currently
+		/* printf("JOB RUNNING CURRENTLY\n"); */
 		pthread_mutex_unlock(&jobqueue->mutex);
+		return -1; // job is being run currently
 	} else {
+
 		// actually remove from queue and delete any output file
+		char outputFileName[20];
+		sprintf(outputFileName, "./outputs/output.%d", id);
+		remove(outputFileName);
 		prevJob->next = awaitingJob->next;	
 		pthread_mutex_unlock(&jobqueue->mutex);
 		return EXIT_SUCCESS;
