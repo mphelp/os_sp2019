@@ -10,3 +10,4 @@ jobsched: jobsched.c $(HEADERS)
 
 clean:
 	-rm -f jobsched
+	-rm -rf $(OUTPUTDIR)
