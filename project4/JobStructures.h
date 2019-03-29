@@ -55,6 +55,7 @@ Job* Job_create(char* commandList, int nwords, char* words[]){
 // JOBQUEUE ===========================================
 typedef struct JobQueue {
 	Job* front;
+	int njobs;
 } JobQueue;
 
 JobQueue* JobQueue_create(){
