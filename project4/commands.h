@@ -104,7 +104,14 @@ int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue)
 	return EXIT_SUCCESS;
 }
 int njobsFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
+	// set njobs
+	if (words[1] == NULL){
+		errInput2("njobs requires <jobid> to specify job");
+		return EXIT_FAILURE;
+	}
+	int njobs = strtoumax(words[1], NULL, 10);
 
+	set_njobs(jobqueue, njobs);
 	return EXIT_SUCCESS;
 }
 int drainFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){

@@ -1,4 +1,5 @@
 #pragma once
+#define MAXNJOBS 20
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -61,8 +62,14 @@ typedef struct JobQueue {
 JobQueue* JobQueue_create(){
 	JobQueue* jobqueue = malloc(sizeof(JobQueue));
 	jobqueue->front = NULL;
-	
+	jobqueue->njobs = 1;
+
 	return jobqueue;
+}
+void set_njobs(JobQueue* jobqueue, int njobs){
+	if (njobs > 0 && njobs < MAXNJOBS){
+		jobqueue->njobs = njobs;	
+	}
 }
 int addJob(JobQueue* jobqueue, Job* job){
 	// empty
