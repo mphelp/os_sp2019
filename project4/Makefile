@@ -9,6 +9,4 @@ jobsched: jobsched.c $(HEADERS)
 	gcc jobsched.c $(FLAGS) -o $@ $(LIB)
 
 clean:
-	-rm -f $(OBJECTS)
 	-rm -f jobsched
-	-rm -rf $(OUTPUTDIR)

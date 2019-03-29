@@ -104,7 +104,7 @@ int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue)
 	return EXIT_SUCCESS;
 }
 int njobsFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
-	// set njobs
+	// set njobs attr of jobqueue
 	if (words[1] == NULL){
 		errInput2("njobs requires <jobid> to specify job");
 		return EXIT_FAILURE;
@@ -115,8 +115,7 @@ int njobsFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	return EXIT_SUCCESS;
 }
 int drainFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
-
-	return EXIT_SUCCESS;
+	return drainJobs(jobqueue);
 }
 
 

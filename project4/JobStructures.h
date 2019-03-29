@@ -74,6 +74,7 @@ void set_njobs(JobQueue* jobqueue, int njobs){
 	pthread_mutex_lock(&jobqueue->mutex);
 	if (njobs > 0 && njobs < MAXNJOBS){
 		jobqueue->njobs = njobs;	
+		pthread_cond_broadcast(&jobqueue->cond);
 	}
 	pthread_mutex_unlock(&jobqueue->mutex);
 }
@@ -114,7 +115,7 @@ int runJob(Job* awaitingJob){
 		// Open output file
 		char outputFileName[20];
 		sprintf(outputFileName, "./outputs/output.%d", awaitingJob->id);
-		int outputFD = open(outputFileName, O_RDWR | O_CREAT, S_IRWXU | S_IRWXG);
+		int outputFD = open(outputFileName, O_RDWR | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG);
 		dup2(outputFD, 1);
 		dup2(outputFD, 2);
 		close(outputFD);
@@ -136,6 +137,8 @@ int indicateCompleteJob(JobQueue* jobqueue, pid_t pid, int exitStatus){
 		if (currJob->pid == pid){
 			currJob->state = DONE;
 			currJob->exit = exitStatus;
+			// broadcast it internationally
+			pthread_cond_broadcast(&jobqueue->cond);
 			pthread_mutex_unlock(&jobqueue->mutex);
 			return EXIT_SUCCESS;
 		}
@@ -145,24 +148,30 @@ int indicateCompleteJob(JobQueue* jobqueue, pid_t pid, int exitStatus){
 	return 2; // reached end
 }
 int numJobsRunning(JobQueue* jobqueue){
-	pthread_mutex_lock(&jobqueue->mutex);
 	int nrunning = 0;
 	Job* job = jobqueue->front;
 	while (job != NULL){
+		if (job->state == RUN){
+			nrunning++;
+		}
 		job = job->next;
-		nrunning++;
 	}
-	pthread_mutex_unlock(&jobqueue->mutex);
 	return nrunning;
 }
 int selectJobToRun(JobQueue* jobqueue){
-	int returnVal;
 	pthread_mutex_lock(&jobqueue->mutex);
+	int returnVal = -1;
 	// GOAL: select job to complete, thus "popped" from queue
 	if (jobqueue->front == NULL){
 		returnVal = 1; // empty
 	} else {
 		// not empty
+		/* printf("njobs: %d, nrunning %d\n", jobqueue->njobs, */
+		/* 		numJobsRunning(jobqueue)); */
+		while (numJobsRunning(jobqueue) >= jobqueue->njobs){
+			pthread_cond_wait(&jobqueue->cond, &jobqueue->mutex);
+		}
+
 		Job* awaitingJob = jobqueue->front;
 		while (awaitingJob->state != WAIT){
 			awaitingJob = awaitingJob->next;
@@ -186,7 +195,7 @@ int removeJob(JobQueue* jobqueue, int id){
 		/* printf("EMPTY\n"); */
 		pthread_mutex_unlock(&jobqueue->mutex);
 		return 1; // empty
-	} else if (jobqueue->front->id == id){
+	} else if (jobqueue->front->id == id && jobqueue->front->state != RUN){
 		jobqueue->front = jobqueue->front->next;
 	
 		// actually remove from queue and delete any output file
@@ -223,6 +232,21 @@ int removeJob(JobQueue* jobqueue, int id){
 		return EXIT_SUCCESS;
 	}
 } 
+int drainJobs(JobQueue* jobqueue){
+	pthread_mutex_lock(&jobqueue->mutex);
+	
+	Job* job = jobqueue->front;
+	while (job != NULL){
+		/* printf("Waiting for job id %d\n", job->id); */
+		while (job->state != DONE){
+			pthread_cond_wait(&jobqueue->cond, &jobqueue->mutex);
+		}
+		/* printf("Finished job id %d\n", job->id); */
+		job = job->next;
+	}
+	pthread_mutex_unlock(&jobqueue->mutex);
+	return EXIT_SUCCESS;
+}
 
 // Displaying jobs for "status" command
 int showJobs(JobQueue* jobqueue){

@@ -38,17 +38,17 @@ void handler(int sig){
 	pid_t pid;
 	pid = wait(&status);
 	if (WIFEXITED(status)){
-		// zero on success, 2 on all jobs completed
-		int returnVal = indicateCompleteJob(jobqueue, pid, WEXITSTATUS(status));
+		// optional return status analysis: zero on success, 2 on all jobs completed
+		indicateCompleteJob(jobqueue, pid, WEXITSTATUS(status));
 	} else {
 		printf("Job with pid %d did not exit\n", pid);
 	}
 }
 void* schedThreadFunc(void* arg){
 	signal(SIGCHLD, handler);
-	int returnVal;
 	while(1){
-		returnVal = selectJobToRun(jobqueue);
+		// optional return status analysis: -1 on failure (ex: fork or exec failure)
+		selectJobToRun(jobqueue);
 	}
 	return NULL;
 }
