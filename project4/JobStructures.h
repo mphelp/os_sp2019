@@ -82,19 +82,12 @@ int addJob(JobQueue* jobqueue, Job* job){
 // Selecting job and running it
 int runJob(Job* awaitingJob){
 	awaitingJob->state = RUN;
-	// print out words of job:
-	/* for (int i = 0; awaitingJob->words[i] != NULL; i++){ */
-	/* 	printf("word %d: %s,  ", i, awaitingJob->words[i]); */
-	/* } */
-	/* printf("\n"); */
 
 	pid_t rc = fork();
 	if (rc < 0){
 		debug("Fork failed");
 		return EXIT_FAILURE;
 	}	else if (rc == 0){
-		/* printf("--> command %s ... process %d started\n", 
-				awaitingJob->words[0], (int)getpid());*/
 
 		// Make directory of output files if needed
 		struct stat st = {0};
@@ -102,7 +95,7 @@ int runJob(Job* awaitingJob){
 			mkdir("./outputs", 0777);
 		}
 		// Open output file
-		char outputFileName[10];
+		char outputFileName[20];
 		sprintf(outputFileName, "./outputs/output.%d", awaitingJob->id);
 		int outputFD = open(outputFileName, O_RDWR | O_CREAT, S_IRWXU | S_IRWXG);
 		dup2(outputFD, 1);

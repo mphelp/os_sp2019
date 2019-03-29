@@ -60,11 +60,35 @@ int waitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	}
 	int id = strtoumax(words[1], NULL, 10);
 
+	// spin until job is done
+	Job* currJob = jobqueue->front;
+	while (currJob != NULL && currJob->id != id){
+		currJob = currJob->next;
+	}
+	if (currJob == NULL){
+		return 1; // not found
+	} else if (currJob->id == id){
+		// spin!
+		while (currJob->state != DONE){}
 
-	// read from their output file
-	
-
-	return EXIT_SUCCESS;
+		// display contents
+		printf("JOBID\tCOMMAND\n");
+		printf("%d\t%s\n", currJob->id, currJob->commandList);
+		// display its output file
+		int c;
+		FILE* file;
+		char inputFileName[20];
+		sprintf(inputFileName, "./outputs/output.%d", id);
+		file = fopen(inputFileName, "r");
+		if (file){
+			while ((c = getc(file)) != EOF)
+				putchar(c);
+			fclose(file);
+		}	
+		return EXIT_SUCCESS;
+	} else {
+		return EXIT_FAILURE;
+	}
 }
 int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	// remove non-running job from queue
