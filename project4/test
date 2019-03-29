@@ -1,4 +1,0 @@
-submit make clean
-submit ls
-wait 2
-submit make
