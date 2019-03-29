@@ -1,5 +1,5 @@
 HEADERS= macros.h commands.h JobStructures.h
-FLAGS= -Wall -g -std=c99
+FLAGS= -Wall -g -std=gnu99
 LIB= -lpthread
 OUTPUTDIR=outputs/
 
