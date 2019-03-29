@@ -54,6 +54,16 @@ int statusFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue)
 }
 int waitFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
 	// wait for given job
+	if (words[1] == NULL){
+		errInput2("Wait requires <jobid> to specify job");
+		return EXIT_FAILURE;
+	}
+	int id = strtoumax(words[1], NULL, 10);
+
+
+	// read from their output file
+	
+
 	return EXIT_SUCCESS;
 }
 int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue){
@@ -64,7 +74,7 @@ int removeFunc(char* commandList, char* words[], int nwords, JobQueue* jobqueue)
 	}
 	int id = strtoumax(words[1], NULL, 10);
 	if (removeJob(jobqueue, id) < 0){
-		errInput2("ERROR: Cannot remove running job ...");
+		errInput2("Cannot remove running job ...");
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

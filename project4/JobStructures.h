@@ -99,13 +99,12 @@ int runJob(Job* awaitingJob){
 		// Make directory of output files if needed
 		struct stat st = {0};
 		if (stat("./outputs", &st) == -1){
-			mkdir("./outputs", 0775);
+			mkdir("./outputs", 0777);
 		}
 		// Open output file
 		char outputFileName[10];
 		sprintf(outputFileName, "./outputs/output.%d", awaitingJob->id);
-		int outputFD = open(outputFileName, 
-				O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+		int outputFD = open(outputFileName, O_RDWR | O_CREAT, S_IRWXU | S_IRWXG);
 		dup2(outputFD, 1);
 		dup2(outputFD, 2);
 		close(outputFD);

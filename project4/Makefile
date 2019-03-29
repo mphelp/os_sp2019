@@ -1,5 +1,5 @@
 HEADERS= macros.h commands.h JobStructures.h
-FLAGS= -Wall -Wpedantic -g
+FLAGS= -Wall -g
 LIB= -lpthread
 
 default: jobsched
