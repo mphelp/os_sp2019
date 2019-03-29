@@ -55,6 +55,8 @@ Job* Job_create(char* commandList, int nwords, char* words[]){
 
 // JOBQUEUE ===========================================
 typedef struct JobQueue {
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
 	Job* front;
 	int njobs;
 } JobQueue;
@@ -63,6 +65,8 @@ JobQueue* JobQueue_create(){
 	JobQueue* jobqueue = malloc(sizeof(JobQueue));
 	jobqueue->front = NULL;
 	jobqueue->njobs = 1;
+	pthread_mutex_init(&jobqueue->mutex, NULL);
+	pthread_cond_init(&jobqueue->cond, NULL);
 
 	return jobqueue;
 }
@@ -131,6 +135,15 @@ int indicateCompleteJob(JobQueue* jobqueue, pid_t pid, int exitStatus){
 		currJob = currJob->next;
 	}
 	return 2; // reached end
+}
+int numJobsRunning(JobQueue* jobqueue){
+	int nrunning = 0;
+	Job* job = jobqueue->front;
+	while (job != NULL){
+		job = job->next;
+		nrunning++;
+	}
+	return nrunning;
 }
 int selectJobToRun(JobQueue* jobqueue){
 	// GOAL: select job to complete, thus "popped" from queue
